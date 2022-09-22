@@ -25,7 +25,7 @@ sudo chmod +x /usr/bin/check4players.sh
 mkdir ~/duckdns
 sudo chmod ugo+rw ~/duckdns
 cd ~/duckdns
-echo url="https://www.duckdns.org/update?domains=dewcraft&token=de1d7258-a68d-4532-9e25-5973f79946ec&ip=" | curl -k -o ~/duckdns/duck.log -K -
+echo url="https://www.duckdns.org/update?domains=dewcraft&token=MY_DUCKDNS_TOKEN_HERE&ip=" | curl -k -o ~/duckdns/duck.log -K -
 
 #Start the services
 sudo systemcl daemon-reload
