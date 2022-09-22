@@ -1,0 +1,11 @@
+[Unit]
+Description=EC2 Spot Interruption Detector
+After=default.target
+
+[Service]
+Type=simple
+User=ec2-user
+ExecStart=/usr/bin/checkinterrupt.sh
+
+[Install]
+WantedBy=multi-user.target

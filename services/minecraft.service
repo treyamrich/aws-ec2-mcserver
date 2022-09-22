@@ -1,0 +1,18 @@
+[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/minecraft
+User=ec2-user
+Group=ec2-user
+
+ExecStart=/usr/bin/screen -DmS mc-server /opt/minecraft/run.sh
+
+ExecStop=/usr/bin/screen -p 0 -S mc-server -X eval 'stuff "say SERVER SHUTTING DOWN IN 5 SECONDS. SAVING ALL MAPS..."\\$ExecStop=/bin/sleep 5
+ExecStop=/usr/bin/screen -p 0 -S mc-server -X eval 'stuff "save-all"\\015'
+ExecStop=/usr/bin/screen -p 0 -S mc-server -X eval 'stuff "stop"\\015'
+ExecStop=/usr/bin/save-mcserver.sh
+
+[Install]
+WantedBy=multi-user.target
