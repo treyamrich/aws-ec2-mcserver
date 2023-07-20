@@ -1,10 +1,14 @@
 import boto3
+from config import config
+
+CONFIG_SECTION = 'aws'
+SERVER_TAG = config.get(CONFIG_SECTION, 'server-tag')
+REGION = config.get(CONFIG_SECTION, 'region')
+LAUNCH_TEMPLATE_NAME = config.get(CONFIG_SECTION, 'launch-template-name')
 
 #Initialize boto3 for AWS SDK
-client = boto3.client('ec2', region_name='us-west-1')
-ec2Resource = boto3.resource('ec2', region_name='us-west-1')
-
-TAG_SERVER_NAME = "mcserver"
+client = boto3.client('ec2', region_name=REGION)
+#ec2Resource = boto3.resource('ec2', region_name=REGION)
 
 class MyInstance():
 	def __init__(self, instanceType, errors, isNew):
@@ -20,7 +24,7 @@ def getServerInstance(checkStartedInstance=False):
 			if instance['State']['Code'] != 16:
 				continue
 			for tag in instance['Tags']:
-				if tag['Key'] == "Name" and tag['Value'] == TAG_SERVER_NAME:
+				if tag['Key'] == "Name" and tag['Value'] == SERVER_TAG:
 					print("Server is already running.")
 					return MyInstance(instance['InstanceType'], [], False)
 	return None
@@ -40,7 +44,7 @@ def startServer():
 	    LaunchTemplateConfigs=[
 	        {
 	            'LaunchTemplateSpecification': {
-	            	'LaunchTemplateName': 'mc-server-fleet', 
+	            	'LaunchTemplateName': LAUNCH_TEMPLATE_NAME, 
 	            	'Version': '$Latest'
 	            }
 	        },
@@ -56,6 +60,7 @@ def startServer():
 	#Check errs
 	if len(resp['Errors']) > 0:
 		print('Error creating spot fleet request')
+		print(resp['Errors'])
 		return MyInstance("", resp['Errors'], False)
 
 	instance = MyInstance(resp['Instances'][0]['InstanceType'], resp['Errors'], True)

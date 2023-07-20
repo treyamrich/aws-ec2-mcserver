@@ -7,7 +7,7 @@
 while sleep 30m; do
         
         sshCons=$(netstat -anp | grep :22 | grep ESTABLISHED | wc -l)
-        mcCons=$(netstat -anp | grep :25565 | grep ESTABLISHED | wc -l)
+        mcCons=$(netstat -anp | grep -E ":25565|:19132" | grep ESTABLISHED | wc -l)
         echo "Active SSH Connections: $sshCons"
         echo "Active Minecraft Connections: $mcCons"
 

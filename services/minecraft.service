@@ -7,7 +7,7 @@ WorkingDirectory=/opt/minecraft
 User=ec2-user
 Group=ec2-user
 
-ExecStart=/usr/bin/screen -DmS mc-server /opt/minecraft/run.sh
+ExecStart=/usr/bin/screen -DmS mc-server /usr/bin/java -Xms2G -Xmx8G -jar paper-1.20.1-68.jar
 
 ExecStop=/usr/bin/screen -p 0 -S mc-server -X eval 'stuff "say SERVER SHUTTING DOWN IN 5 SECONDS. SAVING ALL MAPS..."\\$ExecStop=/bin/sleep 5
 ExecStop=/usr/bin/screen -p 0 -S mc-server -X eval 'stuff "save-all"\\015'

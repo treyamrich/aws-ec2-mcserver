@@ -1,17 +1,18 @@
-import os
-import random
 import discord
 import ec2
-from dotenv import load_dotenv
+from config import config
+import logging 
 
-#Load environment variables
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+
+TOKEN = config.get('discord', 'api-token')
+DOMAIN = config.get('aws', 'server-domain')
+
+SERVER_ADDRESS = config.get('mc-server', 'server-address')
+SERVER_PORT = config.get('mc-server', 'server-port')
 
 #Initialize bot
 bot = discord.Bot()
-
-DOMAIN="dewcraft.duckdns.org"
 
 @bot.command(description="Starts the Minecraft server")
 async def start(ctx):
@@ -29,8 +30,10 @@ async def start(ctx):
 	#If server already running
 	if not instance.isNew:
 		desc = "The server is already running :yawning_face:"
+		logging.info("Server is already running")
 	else:
 		desc = ":desktop: Server is booting up. Pls wait __5 min__ :pray:"
+		logging.info("Server boot initiated")
 	
 	#Create embed response
 	embed = discord.Embed(
@@ -45,12 +48,22 @@ async def start(ctx):
 	embed.set_thumbnail(url="https://img.icons8.com/plasticine/344/minecraft-grass-cube--v1.png")
 	await ctx.respond(embed=embed)
 
+@bot.command(description="Lists the connected players")
+async def list_players(ctx):
+	try:
+		online_players = status.players.online
+		logging.info(f"Executed list_players. Online players: {online_players}")
+		await ctx.respond(f"Online players: {online_players}")
+	except Exception as e:
+		logging.error(f"An error occurred: {str(e)}")
+		await ctx.respond(f"**Error fetching online player list**")
+
 @bot.command(description="Sends the bot's latency.")
 async def ping(ctx):
     await ctx.respond(f"Pong! Latency is {int(bot.latency * 1000)} ms")
 
 @bot.event
 async def on_ready():
-    print(f'{bot.user.name} has connected to Discord!')
+    logging.info(f'{bot.user.name} has connected to Discord!')
 
 bot.run(TOKEN)
