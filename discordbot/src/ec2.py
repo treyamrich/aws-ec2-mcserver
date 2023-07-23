@@ -1,16 +1,15 @@
 import boto3
-from config import config
+import os
+from util import config
+from util import logger
 
-CONFIG_SECTION = 'aws'
-SERVER_TAG = config.get(CONFIG_SECTION, 'server-tag')
-REGION = config.get(CONFIG_SECTION, 'region')
-LAUNCH_TEMPLATE_NAME = config.get(CONFIG_SECTION, 'launch-template-name')
+_logger = logger.Logger(os.path.basename(__file__), config.LOGGER_PATH, 'debug')
 
 #Initialize boto3 for AWS SDK
-client = boto3.client('ec2', region_name=REGION)
+client = boto3.client('ec2', region_name=config.REGION)
 #ec2Resource = boto3.resource('ec2', region_name=REGION)
 
-class MyInstance():
+class EC2Instance():
 	def __init__(self, instanceType, errors, isNew):
 		self.instanceType = instanceType
 		self.errors = errors
@@ -24,14 +23,14 @@ def getServerInstance(checkStartedInstance=False):
 			if instance['State']['Code'] != 16:
 				continue
 			for tag in instance['Tags']:
-				if tag['Key'] == "Name" and tag['Value'] == SERVER_TAG:
-					print("Server is already running.")
-					return MyInstance(instance['InstanceType'], [], False)
+				if tag['Key'] == "Name" and tag['Value'] == config.SERVER_TAG:
+					_logger.info("Server is already running.")
+					return EC2Instance(instance['InstanceType'], [], False)
 	return None
 
 def startServer():
 	"""
-	Returns a type MyInstance
+	Returns a type EC2Instance
 	"""
 
 	#Ensure more than one server will not run
@@ -44,7 +43,7 @@ def startServer():
 	    LaunchTemplateConfigs=[
 	        {
 	            'LaunchTemplateSpecification': {
-	            	'LaunchTemplateName': LAUNCH_TEMPLATE_NAME, 
+	            	'LaunchTemplateName': config.LAUNCH_TEMPLATE_NAME, 
 	            	'Version': '$Latest'
 	            }
 	        },
@@ -59,11 +58,10 @@ def startServer():
 
 	#Check errs
 	if len(resp['Errors']) > 0:
-		print('Error creating spot fleet request')
-		print(resp['Errors'])
-		return MyInstance("", resp['Errors'], False)
+		_logger.error(f'Spot fleet request not fulfilled.\n{resp["Errors"]}')
+		return EC2Instance("", resp['Errors'], False)
 
-	instance = MyInstance(resp['Instances'][0]['InstanceType'], resp['Errors'], True)
-	print(f"Spot Fleet request success. Instance type: {instance.instanceType}")
+	instance = EC2Instance(resp['Instances'][0]['InstanceType'], resp['Errors'], True)
+	_logger.info(f"Spot Fleet request success. Instance type: {instance.instanceType}")
 	return instance
 
