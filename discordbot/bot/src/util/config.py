@@ -1,10 +1,12 @@
 import configparser
 import os
+import sys
 
-script_dir = os.path.dirname(os.path.abspath(__file__))
-config_path = os.path.join(script_dir[:script_dir.find('src')], 'conf', 'config.ini')
+abs_path = os.path.dirname(os.path.abspath(__file__))
+bot_dir = abs_path[:abs_path.find('src')]
+config_path = os.path.join(bot_dir, 'conf', 'config.ini')
 if not os.path.exists(config_path):
-    print("Error could not find config file.")
+    sys.err("Error could not find config file.", file=sys.stderr)
     exit(1)
 
 CONFIG_PATH_DISCORD = 'discord'
@@ -20,7 +22,8 @@ def add_config(section, key, value):
     with open(config_path, "w") as configfile:
         config.write(configfile)
 
-LOGGER_PATH = config.get(CONFIG_PATH_LOGGER, 'log-file-path')
+LOGGER_PATH = os.path.join(bot_dir, 'bot.log')
+print(LOGGER_PATH)
 
 TOKEN = config.get(CONFIG_PATH_DISCORD, 'api-token')
 DEBUG_GUILDS = [x for x in config.get(CONFIG_PATH_DISCORD, 'debug-guild-ids').split(',') if x != '']

@@ -3,3 +3,4 @@ __pycache__
 .vscode
 .metals
 *.log
+discordbot/image.tar

@@ -8,5 +8,5 @@ RUN apt-get update && apt-get install -y nano
 
 COPY bot /app/bot
 
-#WORKDIR /app
-#CMD ["python", "bot/bot.py"]
+WORKDIR /app
+CMD ["python", "bot/src/bot.py"]
