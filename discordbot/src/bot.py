@@ -6,6 +6,11 @@ from util.logger import Logger
 import mcserver_status as mcserver
 
 logger = Logger(os.path.basename(__file__), config.LOGGER_PATH,'debug')
+mcserver_builder = mcserver.MinecraftServerBuilder(
+    config.SERVER_ADDRESS, 
+    config.SERVER_PORT_JAVA
+)
+
 bot = discord.Bot()
 
 @bot.command(description="Starts the Minecraft server")
@@ -47,8 +52,9 @@ async def start(ctx):
 @bot.command(description="Lists the connected players")
 async def list_players(ctx):
 	try:
+		server = mcserver_builder.build_java_server()
+		status = server.list_status()
 		online_players = status.players.online
-		logger.info(f"Executed list_players. Online players: {online_players}")
 		await ctx.respond(f"Online players: {online_players}")
 	except Exception as e:
 		logger.error(f"An error occurred: {str(e)}")
