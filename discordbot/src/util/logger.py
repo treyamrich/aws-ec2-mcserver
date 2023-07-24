@@ -54,12 +54,12 @@ class Logger:
         Args:
             func (function): A callback function to log and execute
         """
-        log_str = f"Function: {func_name} - Message: "
+        log_str = f"Function: {func_name}"
         try:
             self.logger.info(log_str)
             res = func()
-            self.logger.info(log_str + "SUCCESS")
+            self.logger.info(f"{log_str} - Message: SUCCESS")
             return res
         except Exception as e:
-            self.logger.error(log_str + f"{e})")
+            self.logger.error(f"{log_str} - Message: {e})")
             raise e
