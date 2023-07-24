@@ -1,9 +1,9 @@
 import boto3
 import os
 from util import config
-from util import logger
+from util.logger import Logger
 
-_logger = logger.Logger(os.path.basename(__file__), config.LOGGER_PATH, 'debug')
+logger = Logger(os.path.basename(__file__), config.LOGGER_PATH, 'debug')
 
 #Initialize boto3 for AWS SDK
 client = boto3.client('ec2', region_name=config.REGION)
@@ -24,7 +24,7 @@ def getServerInstance(checkStartedInstance=False):
 				continue
 			for tag in instance['Tags']:
 				if tag['Key'] == "Name" and tag['Value'] == config.SERVER_TAG:
-					_logger.info("Server is already running.")
+					logger.info("Server is already running.")
 					return EC2Instance(instance['InstanceType'], [], False)
 	return None
 
@@ -58,10 +58,10 @@ def startServer():
 
 	#Check errs
 	if len(resp['Errors']) > 0:
-		_logger.error(f'Spot fleet request not fulfilled.\n{resp["Errors"]}')
+		logger.error(f'Spot fleet request not fulfilled.\n{resp["Errors"]}')
 		return EC2Instance("", resp['Errors'], False)
 
 	instance = EC2Instance(resp['Instances'][0]['InstanceType'], resp['Errors'], True)
-	_logger.info(f"Spot Fleet request success. Instance type: {instance.instanceType}")
+	logger.info(f"Spot Fleet request success. Instance type: {instance.instanceType}")
 	return instance
 

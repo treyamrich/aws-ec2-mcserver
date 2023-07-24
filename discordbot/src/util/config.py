@@ -10,6 +10,7 @@ if not os.path.exists(config_path):
 CONFIG_PATH_DISCORD = 'discord'
 CONFIG_PATH_AWS = 'aws'
 CONFIG_PATH_LOGGER = 'logger'
+CONFIG_PATH_SERVER = 'server'
 
 config = configparser.ConfigParser()
 config.read(config_path)
@@ -17,9 +18,11 @@ config.read(config_path)
 LOGGER_PATH = config.get(CONFIG_PATH_LOGGER, 'log-file-path')
 
 TOKEN = config.get(CONFIG_PATH_DISCORD, 'api-token')
-SERVER_ADDRESS = config.get(CONFIG_PATH_AWS, 'server-address')
-#SERVER_ADDRESS = config.get('mc-server', 'server-address')
-#SERVER_PORT = config.get('mc-server', 'server-port')
+
+SERVER_ADDRESS = config.get(CONFIG_PATH_SERVER, 'server-address')
+SERVER_PORT_JAVA = config.get(CONFIG_PATH_SERVER, 'server-port-java')
+SERVER_PORT_BEDROCK = config.get(CONFIG_PATH_SERVER, 'server-port-bedrock')
+SERVER_MAP_PORT = config.get(CONFIG_PATH_SERVER, 'server-map-port')
 
 SERVER_TAG = config.get(CONFIG_PATH_AWS, 'server-tag')
 REGION = config.get(CONFIG_PATH_AWS, 'region')

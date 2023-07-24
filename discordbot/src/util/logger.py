@@ -48,14 +48,18 @@ class Logger:
     def critical(self, msg: str):
         self.logger.critical(msg)
     
-    def log_with_info(self, func):
+    def log_with_info(self, func, func_name):
         """Logs the execution of the function.
 
         Args:
             func (function): A callback function to log and execute
         """
-        self.logger.info(f"Executing: {func.__name__}")
+        log_str = f"Function: {func_name} - Message: "
         try:
-            func()
+            self.logger.info(log_str)
+            res = func()
+            self.logger.info(log_str + "SUCCESS")
+            return res
         except Exception as e:
-            self.logger.error(e)
+            self.logger.error(log_str + f"{e})")
+            raise e
