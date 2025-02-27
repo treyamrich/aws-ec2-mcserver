@@ -1,0 +1,75 @@
+{
+    "IamFleetRole": "arn:aws:iam::068621236033:role/aws-ec2-spot-fleet-tagging-role",
+    "AllocationStrategy": "priceCapacityOptimized",
+    "TargetCapacity": 1,
+    "ValidFrom": "2024-10-20T09:55:14.000Z",
+    "ValidUntil": "2025-10-20T09:55:14.000Z",
+    "TerminateInstancesWithExpiration": true,
+    "Type": "maintain",
+    "SpotMaxTotalPrice": "0.0027",
+    "LaunchSpecifications": [
+        {
+            "ImageId": "ami-004a0173a724e2261",
+            "KeyName": "discord-bot",
+            "BlockDeviceMappings": [
+                {
+                    "DeviceName": "/dev/xvda",
+                    "Ebs": {
+                        "DeleteOnTermination": true,
+                        "SnapshotId": "snap-05da431c4b19f692c",
+                        "VolumeSize": 8,
+                        "VolumeType": "gp2",
+                        "Encrypted": false
+                    }
+                }
+            ],
+            "IamInstanceProfile": {
+                "Arn": "arn:aws:iam::068621236033:instance-profile/ec2-discord-bot-role"
+            },
+            "SubnetId": "subnet-032b18caa01c349b0, subnet-0572c3477ee56a621, subnet-0c102d79c7e4d6162, subnet-0ab7000c9ca12395a",
+            "InstanceType": "t3.nano"
+        },
+        {
+            "ImageId": "ami-004a0173a724e2261",
+            "KeyName": "discord-bot",
+            "BlockDeviceMappings": [
+                {
+                    "DeviceName": "/dev/xvda",
+                    "Ebs": {
+                        "DeleteOnTermination": true,
+                        "SnapshotId": "snap-05da431c4b19f692c",
+                        "VolumeSize": 8,
+                        "VolumeType": "gp2",
+                        "Encrypted": false
+                    }
+                }
+            ],
+            "IamInstanceProfile": {
+                "Arn": "arn:aws:iam::068621236033:instance-profile/ec2-discord-bot-role"
+            },
+            "SubnetId": "subnet-032b18caa01c349b0, subnet-0572c3477ee56a621, subnet-0c102d79c7e4d6162, subnet-0ab7000c9ca12395a",
+            "InstanceType": "t3a.nano"
+        },
+        {
+            "ImageId": "ami-004a0173a724e2261",
+            "KeyName": "discord-bot",
+            "BlockDeviceMappings": [
+                {
+                    "DeviceName": "/dev/xvda",
+                    "Ebs": {
+                        "DeleteOnTermination": true,
+                        "SnapshotId": "snap-05da431c4b19f692c",
+                        "VolumeSize": 8,
+                        "VolumeType": "gp2",
+                        "Encrypted": false
+                    }
+                }
+            ],
+            "IamInstanceProfile": {
+                "Arn": "arn:aws:iam::068621236033:instance-profile/ec2-discord-bot-role"
+            },
+            "SubnetId": "subnet-032b18caa01c349b0, subnet-0572c3477ee56a621, subnet-0c102d79c7e4d6162, subnet-0ab7000c9ca12395a",
+            "InstanceType": "t2.micro"
+        }
+    ]
+}

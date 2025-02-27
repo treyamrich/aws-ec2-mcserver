@@ -8,7 +8,7 @@ sudo mkdir minecraft
 sudo chown -R ec2-user:ec2-user minecraft
 cd minecraft
 
-aws s3 cp s3://trey-minecraft-server/setup/forge-1.19-41.1.0-installer.jar .
+aws s3 cp s3://minecraft-server/setup/forge-1.19-41.1.0-installer.jar .
 java -jar forge-1.19-41.1.0-installer.jar --installServer
 echo 'eula=true' > eula.txt
 

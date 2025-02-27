@@ -23,7 +23,6 @@ def add_config(section, key, value):
         config.write(configfile)
 
 LOGGER_PATH = os.path.join(bot_dir, 'bot.log')
-print(LOGGER_PATH)
 
 TOKEN = config.get(CONFIG_PATH_DISCORD, 'api-token')
 DEBUG_GUILDS = [x for x in config.get(CONFIG_PATH_DISCORD, 'debug-guild-ids').split(',') if x != '']
