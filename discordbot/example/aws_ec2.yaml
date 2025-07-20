@@ -1,11 +1,11 @@
 version: '3.8'
 
 services:
-  discordbot:
+  mc-discordbot:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: discordbot
+    container_name: mc-discordbot
     environment:
       - DUCK_DNS_TOKEN=1234
       - DUCK_DNS_DOMAIN=example

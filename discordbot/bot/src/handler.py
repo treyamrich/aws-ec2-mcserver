@@ -127,7 +127,7 @@ class LocalHandler(DiscordCmdHandler):
         """Start the Minecraft server locally."""
         try:
             subprocess.run(
-                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d"],
+                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d", "--force-recreate"],
                 check=True,
                 capture_output=True,
                 text=True
