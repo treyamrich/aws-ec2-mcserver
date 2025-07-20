@@ -39,17 +39,17 @@ class Logger:
         else: # Default level
             self.logger.setLevel(logging.WARNING)
             
-    def debug(self, msg: str):
-        self.logger.debug(msg)
-    def info(self, msg: str):
-        self.logger.info(msg)
-    def warning(self, msg: str):
-        self.logger.warning(msg)
-    def error(self, msg: str):
-        self.logger.error(msg)
-    def critical(self, msg: str):
-        self.logger.critical(msg)
-    
+    def debug(self, msg: str, **kwargs):
+        self.logger.debug(msg, **kwargs)
+    def info(self, msg: str, **kwargs):
+        self.logger.info(msg, **kwargs)
+    def warning(self, msg: str, **kwargs):
+        self.logger.warning(msg, **kwargs)
+    def error(self, msg: str, **kwargs):
+        self.logger.error(msg, **kwargs)
+    def critical(self, msg: str, **kwargs):
+        self.logger.critical(msg, **kwargs)
+
     def log_with_info(self, func, func_name):
         """Logs the execution of the function.
 
