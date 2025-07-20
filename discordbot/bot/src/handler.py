@@ -126,8 +126,8 @@ class LocalHandler(DiscordCmdHandler):
     async def start(self, ctx):
         """Start the Minecraft server locally."""
         if self._is_compose_stack_running(config.GENERAL.docker_compose_slug):
-            await ctx.respond(f"The server is already running :yawning_face:")
             self.logger.info(f"Server is already running locally with slug {config.GENERAL.docker_compose_slug}", extra={'method': 'start'})
+            await ctx.respond(f"The server is already running :yawning_face:")
             return
         
         try:
