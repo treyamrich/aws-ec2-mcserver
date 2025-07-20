@@ -125,9 +125,14 @@ class LocalHandler(DiscordCmdHandler):
     
     async def start(self, ctx):
         """Start the Minecraft server locally."""
+        if self._is_compose_stack_running(config.GENERAL.docker_compose_slug):
+            await ctx.respond(f"The server is already running :yawning_face:")
+            self.logger.info(f"Server is already running locally with slug {config.GENERAL.docker_compose_slug}", extra={'method': 'start'})
+            return
+        
         try:
             subprocess.run(
-                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d", "--force-recreate"],
+                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d"],
                 check=True,
                 capture_output=True,
                 text=True
@@ -155,3 +160,23 @@ class LocalHandler(DiscordCmdHandler):
     async def ip(self, ctx):
         """Get the server's public IP address locally."""
         await ctx.respond(f"Server is hosted locally. IP Address not available.")
+        
+    def _is_compose_stack_running(self, project_name: str) -> bool:
+        """Returns True if any containers are running for the given Docker Compose project name."""
+        try:
+            result = subprocess.run(
+                [
+                    "docker", "ps",
+                    "--filter", f"label=com.docker.compose.project={project_name}",
+                    "--format", "{{.Names}}"
+                ],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            # If any container names are returned, the stack is running
+            return bool(result.stdout.strip())
+        except Exception as e:
+            # Handle errors as needed
+            print(f"Error checking compose stack: {e}")
+            return False
