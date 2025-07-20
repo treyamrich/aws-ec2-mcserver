@@ -17,7 +17,7 @@ class MCServerConfig:
     server_address: str
     server_port_java: int
     server_port_bedrock: int
-    server_map_port: Optional[int] = None
+    server_map_port: Optional[int]
     thumbnail_url: str
    
 @dataclass 
