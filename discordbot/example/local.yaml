@@ -7,14 +7,8 @@ services:
       dockerfile: Dockerfile
     container_name: discordbot
     environment:
-      - DUCK_DNS_TOKEN=1234
-      - DUCK_DNS_DOMAIN=example
       - DEPLOYMENT=local
-      - DOCKER_COMPOSE_FILE_PATH=/home/user/compose.yaml
-
-      - AWS_SERVER_TAG=mcserver
-      - AWS_REGION=us-west-2
-      - AWS_LAUNCH_TEMPLATE_NAME=mc-server
+      - DOCKER_COMPOSE_SLUG=mcserver-modded-1
 
       - DISCORD_API_TOKEN=your_discord_api_token
       - DISCORD_DEBUG_GUILD_IDS=
@@ -25,3 +19,7 @@ services:
       - SERVER_MAP_PORT=8192
       - SERVER_THUMBNAIL_URL=https://img.icons8.com/plasticine/344/minecraft-grass-cube--v1.png
     restart: unless-stopped
+    # Local deployment launches the mc server via docker compose on the host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/user1/compose.yaml:/data/compose.yaml

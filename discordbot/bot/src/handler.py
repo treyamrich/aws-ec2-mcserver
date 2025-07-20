@@ -1,19 +1,28 @@
 import discord
+import os
 import subprocess
 from abc import ABC, abstractmethod
 from core.config import config, Deployment
 from core.logger import Logger
-from core import ec2
 from mcserver_status import mcserver
 import discord_embed as embed
+
+if config.GENERAL.deployment == Deployment.AWS_EC2:
+    from core import ec2
+
+logger = Logger(os.path.basename(__file__), severity_level='debug')
 
 def get_handler(bot) -> 'DiscordCmdHandler':
     """Factory function to get the appropriate handler."""
     if config.GENERAL.deployment == Deployment.LOCAL:
-        pass
+        return LocalHandler(bot)
     elif config.GENERAL.deployment == Deployment.AWS_EC2:
-        pass
-    
+        return AwsEc2Handler(bot)
+    logger.critical("Could not create handler. Handler not implemented for deployment.", extra={
+        "deployment": config.GENERAL.deployment.value,
+        "method": "get_handler"
+    })
+
 async def _exception_helper(logger, e: Exception, ctx):
     logger.error(e)
     if str(e) == "[Errno 8] nodename nor servname provided, or not known":
@@ -118,7 +127,7 @@ class LocalHandler(DiscordCmdHandler):
         """Start the Minecraft server locally."""
         try:
             subprocess.run(
-                ["docker", "compose", "-f", config.GENERAL.docker_compose_file_path, "up", "-d"],
+                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d"],
                 check=True,
                 capture_output=True,
                 text=True

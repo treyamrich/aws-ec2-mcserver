@@ -29,7 +29,7 @@ class AWSConfig:
 @dataclass
 class GeneralConfig:
     deployment: Deployment
-    docker_compose_file_path: str
+    docker_compose_slug: str
     duck_dns_token: str
     duck_dns_domain: str
 
@@ -38,7 +38,7 @@ class Config:
     def __init__(self):
         self._general = GeneralConfig(
             deployment=Deployment(os.getenv('DEPLOYMENT', 'local')),
-            docker_compose_file_path=os.getenv('DOCKER_COMPOSE_FILE_PATH', '.'), # Only applicable for local deployment
+            docker_compose_slug=os.getenv('DOCKER_COMPOSE_SLUG', 'mc-server'),
             duck_dns_token=os.getenv('DUCK_DNS_TOKEN'),
             duck_dns_domain=os.getenv('DUCK_DNS_DOMAIN')
         )
