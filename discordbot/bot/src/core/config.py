@@ -16,7 +16,7 @@ class MCServerConfig:
     server_address: str
     server_port_java: int
     server_port_bedrock: int
-    server_map_port: int
+    server_map_port: int | None
     thumbnail_url: str
    
 @dataclass 
@@ -51,7 +51,7 @@ class Config:
             server_address=os.getenv('SERVER_ADDRESS'),
             server_port_java=int(os.getenv('SERVER_PORT_JAVA', 25565)),
             server_port_bedrock=int(os.getenv('SERVER_PORT_BEDROCK', 19132)),
-            server_map_port=int(os.getenv('SERVER_MAP_PORT', 8080)),
+            server_map_port=int(os.getenv('SERVER_MAP_PORT')) if os.getenv('SERVER_MAP_PORT') is not None else None,
             thumbnail_url=os.getenv('SERVER_THUMBNAIL_URL')
         )
 
