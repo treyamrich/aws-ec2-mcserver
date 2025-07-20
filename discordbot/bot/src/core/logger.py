@@ -4,7 +4,7 @@ class Logger:
     """
     This class encapsulates the logic for creating a logger using the python logging module.
     """
-    def __init__(self, name: str, file_output_path: str, severity_level: str = 'warning'):
+    def __init__(self, name: str, severity_level: str = 'warning'):
         """
         name: name of the logger
         severity_level: str specifies the logging severity level. All log msgs of the level and above will be logged.
@@ -12,18 +12,20 @@ class Logger:
         self.logger = logging.getLogger(name)
         self._set_log_level(severity_level)
 
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        base_format = '%(asctime)s - %(name)s  - %(levelname)s - %(message)s'
+        # Conditional formatting
+        class MethodFormatter(logging.Formatter):
+            def format(self, record):
+                if hasattr(record, 'method'):
+                    self._style._fmt = '%(asctime)s - %(name)s - %(levelname)s - %(method)s - %(message)s'
+                else:
+                    self._style._fmt = base_format
+                return super().format(record)
+        formatter = MethodFormatter(base_format)
         
         c_handler = logging.StreamHandler()
         c_handler.setFormatter(formatter)
         self.logger.addHandler(c_handler)
-        
-        try:
-            f_handler = logging.FileHandler(file_output_path)
-            f_handler.setFormatter(formatter)
-            self.logger.addHandler(f_handler)
-        except FileNotFoundError as e:
-            self.logger.warning(e)
         
     def _set_log_level(self, severity_level: str):
         if severity_level == 'debug':

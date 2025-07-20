@@ -6,10 +6,10 @@ RUN pip install py-cord boto3 mcstatus
 
 RUN apt-get update && apt-get install -y nano curl
 
+RUN apt-get install -y docker.io
+
 COPY bot /app/bot
 COPY container-init.sh /app/container-init.sh
-# Proper .env files must start with #.env
-COPY .env /app/.env
 
 WORKDIR /app
 RUN chmod +x ./container-init.sh

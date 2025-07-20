@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  discordbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: discordbot
+    environment:
+      - DUCK_DNS_TOKEN=1234
+      - DUCK_DNS_DOMAIN=example
+      - DEPLOYMENT=local
+      - DOCKER_COMPOSE_FILE_PATH=/home/user/compose.yaml
+
+      - AWS_SERVER_TAG=mcserver
+      - AWS_REGION=us-west-2
+      - AWS_LAUNCH_TEMPLATE_NAME=mc-server
+
+      - DISCORD_API_TOKEN=your_discord_api_token
+      - DISCORD_DEBUG_GUILD_IDS=
+
+      - SERVER_ADDRESS=dewcraft.duckdns.org
+      - SERVER_PORT_JAVA=25565
+      - SERVER_PORT_BEDROCK=19132
+      - SERVER_MAP_PORT=8192
+      - SERVER_THUMBNAIL_URL=https://img.icons8.com/plasticine/344/minecraft-grass-cube--v1.png
+    restart: unless-stopped

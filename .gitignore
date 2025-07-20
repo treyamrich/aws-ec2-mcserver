@@ -8,3 +8,4 @@ discordbot/image.tar*
 **/*.env
 server/minecraft/
 **/venv
+compose-prod.yaml

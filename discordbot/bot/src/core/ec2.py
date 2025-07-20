@@ -1,13 +1,13 @@
 from typing import List
 import boto3
 import os
-from util import config
-from util.logger import Logger
+from logger import Logger
+from config import config
 
-logger = Logger(os.path.basename(__file__), config.LOGGER_PATH, "debug")
+logger = Logger(os.path.basename(__file__), "debug")
 
 # Initialize boto3 for AWS SDK
-client = boto3.client("ec2", region_name=config.REGION)
+client = boto3.client("ec2", region_name=config.AWS.region)
 # ec2Resource = boto3.resource('ec2', region_name=REGION)
 
 
@@ -38,7 +38,7 @@ def getServerInstance(instance_id=None):
                     (
                         tag
                         for tag in instance["Tags"]
-                        if tag["Key"] == "Name" and tag["Value"] == config.SERVER_TAG
+                        if tag["Key"] == "Name" and tag["Value"] == config.AWS.server_tag
                     ),
                     None,
                 )
@@ -81,7 +81,7 @@ def startServer():
             LaunchTemplateConfigs=[
                 {
                     "LaunchTemplateSpecification": {
-                        "LaunchTemplateName": config.LAUNCH_TEMPLATE_NAME,
+                        "LaunchTemplateName": config.AWS.launch_template_name,
                         "Version": "$Latest",
                     }
                 },

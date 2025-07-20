@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # Set up DuckDNS
-source .env
-echo url="https://www.duckdns.org/update?domains=$DUCK_DNS_DOMAIN&token=$DUCK_DNS_TOKEN&ip=" | curl -k -o duck.log -K -
+if [ "$DEPLOYMENT" != "local" ]; then
+    echo url="https://www.duckdns.org/update?domains=$DUCK_DNS_DOMAIN&token=$DUCK_DNS_TOKEN&ip=" | curl -k -o duck.log -K -
+fi
 
-python bot/src/bot.py
+python bot/src/main.py

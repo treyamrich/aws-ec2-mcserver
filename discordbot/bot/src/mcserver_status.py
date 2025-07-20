@@ -1,11 +1,11 @@
 from mcstatus import JavaServer
 from mcstatus import BedrockServer
 
-from util import config
+from core.config import config
 import os
-from util.logger import Logger
+from core.logger import Logger
 
-logger = Logger(os.path.basename(__file__), config.LOGGER_PATH, severity_level='debug')
+logger = Logger(os.path.basename(__file__), severity_level='debug')
 
 class MinecraftServer:
     
@@ -45,7 +45,7 @@ class MinecraftServerBuilder:
     
 mcserver = None
 try:
-    address, port = config.SERVER_ADDRESS, config.SERVER_PORT_JAVA
+    address, port = config.MINECRAFT.server_address, config.MINECRAFT.server_port_java
     mcserver = MinecraftServerBuilder(address, port) \
 		.build_java_server()
     latency = int(mcserver.ping())
