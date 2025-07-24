@@ -131,6 +131,13 @@ class LocalHandler(DiscordCmdHandler):
             return
         
         try:
+            # Ensure no existing containers are running before starting a new one
+            subprocess.run(
+                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "down"],
+                check=True,
+                capture_output=True,
+                text=True
+            )
             subprocess.run(
                 ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d"],
                 check=True,
