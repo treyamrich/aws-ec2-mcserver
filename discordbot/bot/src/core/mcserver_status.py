@@ -1,7 +1,6 @@
 
-from typing import Any, Callable, Optional, Set, Tuple
-from mcstatus import MCServer, JavaServer, BedrockServer
-from mcstatus.responses import QueryResponse
+from typing import Any, Callable, Optional, Set, Union
+from mcstatus import JavaServer, BedrockServer
 
 from core.config import config
 import os
@@ -13,7 +12,7 @@ class MinecraftServer:
 
     def __init__(self, address: str, port: int, is_bedrock: bool = False):
         server_type = BedrockServer if is_bedrock else JavaServer
-        self._server: MCServer = server_type.lookup(f"{address}:{port}")
+        self._server: Union[BedrockServer, JavaServer] = server_type.lookup(f"{address}:{port}")
         
     def is_server_running(self) -> bool:
         """Check if the server is running."""
