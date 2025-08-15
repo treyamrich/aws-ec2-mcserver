@@ -15,6 +15,7 @@ services:
       - DISCORD_SERVER_STATE_FILENAME=/data/discord_server_state.json
 
       - SERVER_ADDRESS=dewcraft.duckdns.org
+      - SERVER_STATUS_HOST=localhost
       - SERVER_PORT_JAVA=25565
       - SERVER_PORT_BEDROCK=19132
       - SERVER_MAP_PORT=8192

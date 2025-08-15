@@ -38,5 +38,5 @@ class MinecraftServer:
             logger.error(f"Error in MinecraftServer.py method '{func_name}': {e}")
             return default_return
     
-address, port = config.MINECRAFT.server_address, config.MINECRAFT.server_port_java
+address, port = config.MINECRAFT.server_status_host, config.MINECRAFT.server_port_java
 mcserver = MinecraftServer(address, port, is_bedrock=False)

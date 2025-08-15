@@ -16,6 +16,7 @@ class DiscordConfig:
 @dataclass
 class MCServerConfig:
     server_address: str
+    server_status_host: str
     server_port_java: int
     server_port_bedrock: int
     server_map_port: Optional[str]
@@ -52,6 +53,7 @@ class Config:
 
         self._mcserver = MCServerConfig(
             server_address=os.getenv('SERVER_ADDRESS'),
+            server_status_host=os.getenv('SERVER_STATUS_HOST', os.getenv('SERVER_ADDRESS')),
             server_port_java=int(os.getenv('SERVER_PORT_JAVA', 25565)),
             server_port_bedrock=int(os.getenv('SERVER_PORT_BEDROCK', 19132)),
             server_map_port=os.getenv('SERVER_MAP_PORT'),
