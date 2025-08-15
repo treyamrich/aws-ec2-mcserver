@@ -1,4 +1,5 @@
 
+import socket
 from typing import Any, Callable, Optional, Set, Union
 from mcstatus import JavaServer, BedrockServer
 
@@ -31,7 +32,7 @@ class MinecraftServer:
         """Helper to rescue from exceptions and return a default value."""
         try:
             return func()
-        except (ConnectionRefusedError, TimeoutError) as e:
+        except (ConnectionRefusedError, socket.timeout) as e:
             logger.debug(f"Could not connect to Minecraft server: {e}", extra={"method": func_name})
             return default_return
         except Exception as e:
