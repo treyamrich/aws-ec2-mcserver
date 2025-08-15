@@ -2,13 +2,14 @@ from typing import List
 import boto3
 import os
 from .logger import Logger
-from .config import config
+from .config import Deployment, config
 
 logger = Logger(os.path.basename(__file__), "debug")
 
 # Initialize boto3 for AWS SDK
-client = boto3.client("ec2", region_name=config.AWS.region)
-# ec2Resource = boto3.resource('ec2', region_name=REGION)
+if config.GENERAL.deployment == Deployment.AWS_EC2:
+    client = boto3.client("ec2", region_name=config.AWS.region)
+    # ec2Resource = boto3.resource('ec2', region_name=REGION)
 
 
 class EC2Instance:

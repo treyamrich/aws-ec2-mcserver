@@ -2,14 +2,11 @@ from dataclasses import dataclass, field
 import enum
 import json
 import threading
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from core.config import config
 from core.logger import Logger
 from mcserver_status import mcserver
-
-if TYPE_CHECKING:
-    from core import ec2
     
 logger = Logger('StateManager', severity_level='debug')
 
