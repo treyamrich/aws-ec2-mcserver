@@ -65,6 +65,11 @@ class StateManager:
         with self._lock:
             return self.server_state.run_state
         
+    def set_server_state_running(self):
+        """Set the server state to running."""
+        with self._lock:
+            self.server_state.run_state = RunState.RUNNING
+            
     def update_server_run_state(self):
         is_remote_running = mcserver.is_server_running()
         with self._lock:

@@ -54,7 +54,8 @@ class DiscordCmdHandler(ABC):
         await ctx.respond(f"Pong! Latency is {int(self.bot.latency * 1000)} ms")
         
     async def _finalize_server_start(self, ctx: discord.ApplicationContext):
-        state_manager.set_server_run_state(RunState.STARTING)
+        state_manager.set_discord_guild_name(ctx.guild.name)
+        state_manager.set_server_state_running()
         bot_response = await ctx.respond(embed=embed.server_status())
         original_response = await bot_response.original_response()
         state_manager.set_server_status_channel_and_msg_id(
@@ -86,7 +87,6 @@ class AwsEc2Handler(DiscordCmdHandler):
 
         self.logger.info("Server boot initiated")
         state_manager.reset()
-        state_manager.set_discord_guild_name(ctx.guild.name)
         state_manager.set_ec2_instance(instance)
         await self._finalize_server_start(ctx)
 
@@ -130,7 +130,6 @@ class LocalHandler(DiscordCmdHandler):
             await ctx.respond("Failed to start the server :cry:")
             return
         
-        state_manager.set_discord_guild_name(ctx.guild.name)
         await self._finalize_server_start(ctx)
     
     async def ip(self, ctx: discord.ApplicationContext):
