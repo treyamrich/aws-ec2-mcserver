@@ -1,52 +1,68 @@
 import discord
-from core.config import config
+from core.config import Deployment, config
 from core.logger import Logger
+from core.state import state_manager
+from discordbot.bot.src.core import ec2
 from mcserver_status import mcserver
 
 logger = Logger('DiscordEmbed', severity_level='debug')
 
-def server_status(ip_address = 'Unknown') -> discord.Embed:
-    """Common method to get the discord 'Embed' for the server status."""
-    status = mcserver.list_status()
-        
-    num_players, latency = status.players.online, int(status.latency)
-    status_str = (
-        f"There are {num_players} players online. Response in {latency} ms."
-    )
-    logger.debug(status_str, extra={'method': 'server_status'})
-
-    embed = discord.Embed(
-        title=config.MINECRAFT.server_address, description="Server status", color=0x18CF9B
-    )
-    
-    embed.add_field(name="Number of players", value=num_players)
-    embed.add_field(name="Ping", value=f"{latency} ms")
-    embed.add_field(
-        name="Server Domain", value=f"**{config.MINECRAFT.server_address}**", inline=False
-    )
-    embed.add_field(
-        name="Server IP Address", value=f"**{ip_address}**", inline=False
-    )
-    return embed
-
-def server_start(guild_name):
-    desc = ":desktop: Server is booting up. Pls wait __5 min__ :pray:"
+def server_status() -> discord.Embed:
+    guild_name = state_manager.get_discord_guild_name()
+    desc = ":desktop: The server will be automatically turned off if there are __0 players connections for 30 minutes__."
     embed = discord.Embed(title=guild_name, description=desc, color=0x18CF9B)
     embed.add_field(
         name="Server Address", value=f"**{config.MINECRAFT.server_address}**", inline=False
     )
-    embed.add_field(
-        name="Server Notice",
-        value="- The server will be automatically turned off if there are __0 players connections for 30 minutes__.",
-        inline=False,
-    )
+    
     if config.MINECRAFT.server_map_port:
         embed.add_field(
             name="Server Map",
             value=f"http://{config.MINECRAFT.server_address}:{config.MINECRAFT.server_map_port}/",
         )
-    # embed.set_image(url="https://play-lh.googleusercontent.com/VSwHQjcAttxsLE47RuS4PqpC4LT7lCoSjE7Hx5AW_yCxtDvcnsHHvm5CTuL5BPN-uRTP=w240-h480-rw")
+
     if config.MINECRAFT.thumbnail_url:
         embed.set_thumbnail(url=config.MINECRAFT.thumbnail_url)
+    
+    _set_server_status(embed)
+    _set_server_deployment_footer(embed)
     return embed
     
+def _set_server_status(embed: discord.Embed):
+    status = state_manager.get_server_run_state()
+    embed.add_field(
+        name="Server Status",
+        value=f"**{status.value.capitalize()}**",
+        inline=False
+    )
+
+    connected_players = mcserver.list_players() or set()
+    connected_players_msg = [f"- {player}" for player in connected_players]
+    embed.add_field(name="Number of players", value=len(connected_players))
+    embed.add_field(
+        name="Connected Players",
+        value="\n".join(connected_players_msg) if connected_players else "None",
+        inline=False,
+    )
+    
+    latency = mcserver.ping()
+    latency = f"{latency} ms" if latency is not None else "unknown"
+    embed.add_field(name="Ping", value=latency)
+
+def _set_server_deployment_footer(embed: discord.Embed):
+    """Add the server deployment information to the embed."""
+    if config.GENERAL.deployment == Deployment.LOCAL:
+        embed.set_footer(
+            text=f"Server hosted locally"
+        )
+    elif config.GENERAL.deployment == Deployment.AWS_EC2:
+        instance = ec2.getServerInstance()
+        instance_type = instance.instanceType if instance else "Unknown"
+        ip = instance.public_ip if instance else "Unknown"
+        embed.set_footer(
+            text=f"Server hosted on AWS Spot EC2. Instance Type: {instance_type}. IP: {ip}."
+        )
+    else:
+        embed.set_footer(
+            text=f"Server hosted on {config.GENERAL.deployment.value}"
+        )
