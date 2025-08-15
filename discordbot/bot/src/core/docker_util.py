@@ -3,8 +3,8 @@ import os
 import docker
 from typing import Optional
 
-from discordbot.bot.src.core.logger import Logger
-from discordbot.bot.src.core.state import RunState
+from logger import Logger
+from state import RunState
 
 logger = Logger(os.path.basename(__file__), severity_level='debug')
 client = docker.from_env()
