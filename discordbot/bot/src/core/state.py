@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import enum
 import json
 import threading
@@ -29,7 +29,7 @@ class ServerState:
     run_state: RunState = RunState.STOPPED
     server_status_msg_id: Optional[int] = None
     server_status_msg_channel_id: Optional[int] = None
-    connected_players: set = set()
+    connected_players: set = field(default_factory=set)
     ec2_instance: Optional['ec2.EC2Instance'] = None
     
 class StateManager:
