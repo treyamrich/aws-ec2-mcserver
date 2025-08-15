@@ -8,6 +8,7 @@ from core.config import config
 from core.logger import Logger
 from core.state import state_manager
 from handler import get_handler
+from core.mcserver_status import mcserver
 
 bot = discord.Bot(debug_guilds=config.DISCORD.debug_guild_ids)
 logger = Logger(os.path.basename(__file__), severity_level='debug')
@@ -33,6 +34,8 @@ class MainCog(commands.Cog):
 
         try:
             current_connected_players = state_manager.get_connected_players()
+            new_connected_players = mcserver.list_players() or set()
+            state_manager.set_connected_players(new_connected_players)
             state_manager.update_server_run_state()
                 
             if not state_manager.is_server_running():
@@ -40,7 +43,7 @@ class MainCog(commands.Cog):
                 return
 
             # Update the connected players only if there is a change
-            if current_connected_players == state_manager.get_connected_players():
+            if current_connected_players == new_connected_players:
                 return
             
             # If the status message even exists from starting the server
