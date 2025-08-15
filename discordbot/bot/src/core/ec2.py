@@ -4,7 +4,7 @@ import os
 from core.logger import Logger
 from core.config import Deployment, config
 
-logger = Logger(os.path.basename(__file__), "debug")
+logger = Logger(os.path.basename(__file__))
 
 # Initialize boto3 for AWS SDK
 if config.GENERAL.deployment == Deployment.AWS_EC2:

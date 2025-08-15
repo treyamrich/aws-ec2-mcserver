@@ -8,6 +8,7 @@ services:
     container_name: mc-discordbot
     environment:
       - DEPLOYMENT=local
+      - LOG_LEVEL=debug
       - MC_SERVER_CONTAINER_NAME=mcserver-modded-1
 
       - DISCORD_API_TOKEN=your_discord_api_token

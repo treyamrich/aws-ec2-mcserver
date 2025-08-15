@@ -9,7 +9,7 @@ from core.logger import Logger
 from core import ec2
 from core.mcserver_status import mcserver
     
-logger = Logger('StateManager', severity_level='debug')
+logger = Logger('StateManager')
 
 class RunState(enum.Enum):
     STARTING = "starting"

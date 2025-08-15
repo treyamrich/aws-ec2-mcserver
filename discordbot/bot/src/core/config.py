@@ -11,6 +11,13 @@ class ServerType(Enum):
     JAVA = "java"
     BEDROCK = "bedrock"
 
+class LogLevel(Enum):
+    DEBUG = "debug"
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    CRITICAL = "critical"
+
 @dataclass
 class DiscordConfig:
     api_token: str
@@ -36,6 +43,7 @@ class AWSConfig:
 @dataclass
 class GeneralConfig:
     deployment: Deployment
+    log_level: LogLevel
     mc_server_container_name: str
     duck_dns_token: str
     duck_dns_domain: str
@@ -45,6 +53,7 @@ class Config:
     def __init__(self):
         self._general = GeneralConfig(
             deployment=Deployment(os.getenv('DEPLOYMENT', 'local')),
+            log_level=LogLevel(os.getenv('LOG_LEVEL', 'info')),
             mc_server_container_name=os.getenv('MC_SERVER_CONTAINER_NAME', 'UNKNOWN CONTAINER'),
             duck_dns_token=os.getenv('DUCK_DNS_TOKEN'),
             duck_dns_domain=os.getenv('DUCK_DNS_DOMAIN'),

@@ -1,3 +1,4 @@
+import os
 import discord
 from core.config import Deployment, config
 from core.logger import Logger
@@ -5,7 +6,7 @@ from core.state import state_manager
 from core import ec2
 from core.mcserver_status import mcserver
 
-logger = Logger('DiscordEmbed', severity_level='debug')
+logger = Logger(os.path.basename(__file__))
 
 def server_status() -> discord.Embed:
     guild_name = state_manager.get_discord_guild_name()

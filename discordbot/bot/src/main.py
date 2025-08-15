@@ -11,7 +11,7 @@ from handler import get_handler
 from core.mcserver_status import mcserver
 
 bot = discord.Bot(debug_guilds=config.DISCORD.debug_guild_ids)
-logger = Logger(os.path.basename(__file__), severity_level='debug')
+logger = Logger(os.path.basename(__file__))
 
 class MainCog(commands.Cog):
     

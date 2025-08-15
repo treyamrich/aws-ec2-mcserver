@@ -1,16 +1,18 @@
 import logging
 
+from core.config import config
+
 class Logger:
     """
     This class encapsulates the logic for creating a logger using the python logging module.
     """
-    def __init__(self, name: str, severity_level: str = 'warning'):
+    def __init__(self, name: str):
         """
         name: name of the logger
         severity_level: str specifies the logging severity level. All log msgs of the level and above will be logged.
         """
         self.logger = logging.getLogger(name)
-        self._set_log_level(severity_level)
+        self._set_log_level(config.GENERAL.log_level.value)
 
         base_format = '%(asctime)s - %(name)s  - %(levelname)s - %(message)s'
         # Conditional formatting

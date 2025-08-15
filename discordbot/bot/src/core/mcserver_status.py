@@ -7,7 +7,7 @@ from core.config import config
 import os
 from core.logger import Logger
 
-logger = Logger(os.path.basename(__file__), severity_level='debug')
+logger = Logger(os.path.basename(__file__))
 
 class MinecraftServer:
 

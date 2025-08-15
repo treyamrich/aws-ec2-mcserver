@@ -6,7 +6,7 @@ from typing import Optional
 from core.logger import Logger
 from core.state import RunState
 
-logger = Logger(os.path.basename(__file__), severity_level='debug')
+logger = Logger(os.path.basename(__file__))
 client = docker.from_env()
 
 class ContainerStatus:

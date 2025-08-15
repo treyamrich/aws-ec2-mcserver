@@ -13,7 +13,7 @@ from core import docker_util
 if config.GENERAL.deployment == Deployment.AWS_EC2:
     from core import ec2
 
-logger = Logger(os.path.basename(__file__), severity_level='debug')
+logger = Logger(os.path.basename(__file__))
 
 def get_handler(bot) -> 'DiscordCmdHandler':
     """Factory function to get the appropriate handler."""
