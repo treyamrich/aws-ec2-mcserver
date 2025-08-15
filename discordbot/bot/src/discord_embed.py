@@ -3,7 +3,7 @@ from core.config import Deployment, config
 from core.logger import Logger
 from core.state import state_manager
 from core import ec2
-from mcserver_status import mcserver
+from core.mcserver_status import mcserver
 
 logger = Logger('DiscordEmbed', severity_level='debug')
 
