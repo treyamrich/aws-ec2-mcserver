@@ -6,7 +6,7 @@ import discord_embed as embed
 
 from core.config import config, Deployment
 from core.logger import Logger
-from core.state import RunState, state_manager
+from core.state import state_manager
 from core import docker_util
 
 
@@ -103,8 +103,8 @@ class LocalHandler(DiscordCmdHandler):
 
     async def start(self, ctx: discord.ApplicationContext):
         """Start the Minecraft server locally."""
-        if docker_util.is_container_running(config.GENERAL.docker_compose_slug):
-            self.logger.info(f"Server is already running locally with slug {config.GENERAL.docker_compose_slug}", extra={'method': 'start'})
+        if docker_util.is_container_running(config.GENERAL.mc_server_container_name):
+            self.logger.info(f"Server is already running locally with name {config.GENERAL.mc_server_container_name}", extra={'method': 'start'})
             await ctx.respond(f"The server is already running :yawning_face:")
             return
         
@@ -113,13 +113,13 @@ class LocalHandler(DiscordCmdHandler):
         try:
             # Ensure no existing containers are running before starting a new one
             subprocess.run(
-                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "down"],
+                ["docker", "compose", "-p", config.GENERAL.mc_server_container_name, "-f", "/data/compose.yaml", "down"],
                 check=True,
                 capture_output=True,
                 text=True
             )
             subprocess.run(
-                ["docker", "compose", "-p", config.GENERAL.docker_compose_slug, "-f", "/data/compose.yaml", "up", "-d"],
+                ["docker", "compose", "-p", config.GENERAL.mc_server_container_name, "-f", "/data/compose.yaml", "up", "-d"],
                 check=True,
                 capture_output=True,
                 text=True

@@ -12,9 +12,9 @@ logger = Logger(os.path.basename(__file__), severity_level='debug')
 class MinecraftServer:
 
     def __init__(self, address: str, port: int, is_bedrock: bool = False):
-        server_type = BedrockServer if is_bedrock else JavaServer
-        self._server: Union[BedrockServer, JavaServer] = server_type.lookup(f"{address}:{port}")
-        
+        cls = BedrockServer if is_bedrock else JavaServer
+        self._server: Union[BedrockServer, JavaServer] = cls(address, port)
+
     def is_server_running(self) -> bool:
         """Check if the server is running."""
         return self.ping() is not None

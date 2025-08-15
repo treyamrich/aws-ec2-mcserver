@@ -8,7 +8,7 @@ services:
     container_name: mc-discordbot
     environment:
       - DEPLOYMENT=local
-      - DOCKER_COMPOSE_SLUG=mcserver-modded-1
+      - MC_SERVER_CONTAINER_NAME=mcserver-modded-1
 
       - DISCORD_API_TOKEN=your_discord_api_token
       - DISCORD_DEBUG_GUILD_IDS=
@@ -16,6 +16,7 @@ services:
 
       - SERVER_ADDRESS=dewcraft.duckdns.org
       - SERVER_STATUS_HOST=localhost
+      - SERVER_TYPE=java
       - SERVER_PORT_JAVA=25565
       - SERVER_PORT_BEDROCK=19132
       - SERVER_MAP_PORT=8192
