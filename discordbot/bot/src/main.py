@@ -33,19 +33,25 @@ class MainCog(commands.Cog):
         log_vars = {"method": "update_server_status_loop"}
 
         try:
-            current_connected_players = state_manager.get_connected_players()
-            new_connected_players = mcserver.list_players() or set()
-            state_manager.set_connected_players(new_connected_players)
+            current_run_state = state_manager.get_server_run_state()
             state_manager.update_server_run_state()
+            new_run_state = state_manager.get_server_run_state()
                 
             if not state_manager.is_server_running():
                 logger.info("Server not running, waiting for it to start.", extra=log_vars)
                 return
-
-            # Update the connected players only if there is a change
-            if current_connected_players == new_connected_players:
-                return
             
+            current_connected_players = state_manager.get_connected_players()
+            new_connected_players = mcserver.list_players() or set()
+            state_manager.set_connected_players(new_connected_players)
+            
+            # No change detected
+            if (
+                current_run_state == new_run_state and
+                current_connected_players == new_connected_players
+            ):
+                return
+
             # If the status message even exists from starting the server
             channel_id, msg_id = state_manager.get_server_status_channel_and_msg_id()
             if msg_id and channel_id:

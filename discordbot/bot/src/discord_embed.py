@@ -12,7 +12,7 @@ def server_status() -> discord.Embed:
     desc = ":desktop: The server will be automatically turned off if there are __0 players connections for 30 minutes__."
     embed = discord.Embed(title=guild_name, description=desc, color=0x18CF9B)
     embed.add_field(
-        name="Server Address", value=f"**{config.MINECRAFT.server_address}**", inline=False
+        name="Server Address", value=config.MINECRAFT.server_address, inline=False
     )
     
     if config.MINECRAFT.server_map_port:
@@ -32,7 +32,7 @@ def _set_server_status(embed: discord.Embed):
     status = state_manager.get_server_run_state()
     embed.add_field(
         name="Server Status",
-        value=f"**{status.value.capitalize()}**",
+        value=f"{status.value.capitalize()}",
         inline=False
     )
 
@@ -44,10 +44,6 @@ def _set_server_status(embed: discord.Embed):
         value="\n".join(connected_players_msg) if connected_players else "None",
         inline=False,
     )
-    
-    latency = mcserver.ping()
-    latency = f"{latency} ms" if latency is not None else "unknown"
-    embed.add_field(name="Ping", value=latency)
 
 def _set_server_deployment_footer(embed: discord.Embed):
     """Add the server deployment information to the embed."""

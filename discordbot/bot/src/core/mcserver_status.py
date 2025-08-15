@@ -20,7 +20,7 @@ class MinecraftServer:
         return self.ping() is not None
 
     def ping(self) -> Optional[float]:
-        return self._rescue("ping", self._server.ping, None)
+        return self._rescue("ping", lambda: int(self._server.ping()), None)
 
     def list_players(self) -> Optional[Set[str]]:
         def _get_player_names() -> Set[str]:
