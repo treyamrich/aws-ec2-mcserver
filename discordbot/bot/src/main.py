@@ -3,10 +3,10 @@ import os
 from discord.ext import tasks, commands
 from discord.commands import SlashCommandGroup
 
+import discord_embed
 from core.config import config
 from core.logger import Logger
 from core.state import state_manager
-from discordbot.bot.src import discord_embed
 from handler import get_handler
 
 bot = discord.Bot(debug_guilds=config.DISCORD.debug_guild_ids)
