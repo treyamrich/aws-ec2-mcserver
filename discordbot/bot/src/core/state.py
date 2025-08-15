@@ -4,9 +4,9 @@ import json
 import threading
 from typing import Optional
 
-from .config import config
-from .logger import Logger
-import ec2
+from core.config import config
+from core.logger import Logger
+from core import ec2
 from core.mcserver_status import mcserver
     
 logger = Logger('StateManager', severity_level='debug')

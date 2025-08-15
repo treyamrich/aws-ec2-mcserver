@@ -1,8 +1,8 @@
 from typing import List
 import boto3
 import os
-from .logger import Logger
-from .config import Deployment, config
+from core.logger import Logger
+from core.config import Deployment, config
 
 logger = Logger(os.path.basename(__file__), "debug")
 
