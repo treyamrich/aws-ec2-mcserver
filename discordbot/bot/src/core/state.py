@@ -1,14 +1,16 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 import enum
 import json
 import threading
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 
 from core.config import config
-from core import ec2
 from core.logger import Logger
 from mcserver_status import mcserver
 
+if TYPE_CHECKING:
+    from core import ec2
+    
 logger = Logger('StateManager', severity_level='debug')
 
 class RunState(enum.Enum):
