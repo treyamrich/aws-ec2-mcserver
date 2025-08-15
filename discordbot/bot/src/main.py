@@ -54,7 +54,7 @@ class MainCog(commands.Cog):
         except Exception as e:
             logger.error(f"Error updating server state: {e}", extra=log_vars)
 
-    @bot.command(description="Lists number of players and ping.")
+    @server.command(description="Lists number of players and ping.")
     async def status(self, ctx: discord.ApplicationContext):
         await self.handler.status(ctx)
 
