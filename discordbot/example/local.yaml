@@ -12,6 +12,7 @@ services:
 
       - DISCORD_API_TOKEN=your_discord_api_token
       - DISCORD_DEBUG_GUILD_IDS=
+      - DISCORD_SERVER_STATE_FILENAME=/data/discord_server_state.json
 
       - SERVER_ADDRESS=dewcraft.duckdns.org
       - SERVER_PORT_JAVA=25565
@@ -23,3 +24,4 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /home/user1/compose.yaml:/data/compose.yaml
+      - /home/user1/discord_server_state.json:/data/discord_server_state.json

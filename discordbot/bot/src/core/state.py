@@ -1,17 +1,20 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 import enum
+import json
 import threading
 from typing import Optional
 
-import discord
+from core.config import config
+from core import ec2
+from core.logger import Logger
+from mcserver_status import mcserver
 
-from discordbot.bot.src.core import ec2
+logger = Logger('StateManager', severity_level='debug')
 
 class RunState(enum.Enum):
     STARTING = "starting"
     RESTARTING = "restarting"
     RUNNING = "running"
-    STOPPING = "stopping"
     STOPPED = "stopped"
     EXITED = "exited"
     PAUSED = "paused"
@@ -22,7 +25,8 @@ class RunState(enum.Enum):
 class ServerState:
     discord_guild_name: str = "MC Server"
     run_state: RunState = RunState.STOPPED
-    server_status_message: Optional[discord.Interaction] = None
+    server_status_msg_id: Optional[int] = None
+    server_status_msg_channel_id: Optional[int] = None
     connected_players: set = set()
     ec2_instance: Optional['ec2.EC2Instance'] = None
     
@@ -61,17 +65,26 @@ class StateManager:
         with self._lock:
             return self.server_state.run_state
         
-    def set_server_run_state(self, state: RunState):
+    def update_server_run_state(self):
+        is_remote_running = mcserver.is_server_running()
         with self._lock:
-            self.server_state.run_state = state
+            # This is a mini FSM
+            curr_state = self.server_state.run_state
+            if curr_state == RunState.STARTING and is_remote_running:
+                self.server_state.run_state = RunState.RUNNING
+            elif curr_state == RunState.RUNNING and not is_remote_running:
+                self.server_state.run_state = RunState.STOPPED
+            elif curr_state == RunState.STOPPED and is_remote_running:
+                self.server_state.run_state = RunState.RUNNING
 
-    def get_server_status_message(self) -> Optional[discord.Interaction]:
+    def get_server_status_channel_and_msg_id(self) -> Optional[tuple[int, int]]:
         with self._lock:
-            return self.server_state.server_status_message
-        
-    def set_server_status_message(self, message: discord.Interaction):
+            return (self.server_state.server_status_msg_channel_id, self.server_state.server_status_msg_id)
+
+    def set_server_status_channel_and_msg_id(self, channel_id: int, msg_id: int):
         with self._lock:
-            self.server_state.server_status_message = message
+            self.server_state.server_status_msg_channel_id = channel_id
+            self.server_state.server_status_msg_id = msg_id
 
     def is_server_running(self) -> bool:
         with self._lock:
@@ -84,5 +97,34 @@ class StateManager:
     def get_ec2_instance(self) -> Optional['ec2.EC2Instance']:
         with self._lock:
             return self.server_state.ec2_instance
+        
+    def save_to_file(self):
+        try:
+            data = {
+                "server_status_msg_channel_id": self.server_state.server_status_msg_channel_id,
+                "server_status_msg_id": self.server_state.server_status_msg_id
+            }
+            with open(config.DISCORD.server_state_filename, "w") as f:
+                json.dump(data, f, indent=4)
+        except Exception as e:
+            logger.error(f"Error saving server state to file: {e}")
+
+    def load_from_file(self):
+        """Load the server state from a file. This should only be called if the server is running!"""
+        try:
+            with open(config.DISCORD.server_state_filename, "r") as f:
+                data = json.load(f)
+            channel_id = int(data.get("server_status_msg_channel_id", 0))
+            msg_id = int(data.get("server_status_msg_id", 0))
+        except Exception as e:
+            logger.error(f"Error loading server state from file: {e}")
+            return
+
+        with self._lock:
+            if "server_status_msg_channel_id" in data:
+                self.server_state.server_status_msg_channel_id = channel_id
+            if "server_status_msg_id" in data:
+                self.server_state.server_status_msg_id = msg_id
+            self.server_state.run_state = RunState.RUNNING
 
 state_manager = StateManager()

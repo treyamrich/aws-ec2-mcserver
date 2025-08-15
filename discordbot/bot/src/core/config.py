@@ -11,6 +11,7 @@ class Deployment(Enum):
 class DiscordConfig:
     api_token: str
     debug_guild_ids: list
+    server_state_filename: str
 
 @dataclass
 class MCServerConfig:
@@ -40,12 +41,13 @@ class Config:
             deployment=Deployment(os.getenv('DEPLOYMENT', 'local')),
             docker_compose_slug=os.getenv('DOCKER_COMPOSE_SLUG', 'mc-server'),
             duck_dns_token=os.getenv('DUCK_DNS_TOKEN'),
-            duck_dns_domain=os.getenv('DUCK_DNS_DOMAIN')
+            duck_dns_domain=os.getenv('DUCK_DNS_DOMAIN'),
         )
 
         self._discord = DiscordConfig(
             api_token=os.getenv('DISCORD_API_TOKEN'),
             debug_guild_ids=[x.strip() for x in os.getenv('DISCORD_DEBUG_GUILD_IDS', '').split(',') if x.strip()],
+            server_state_filename=os.getenv('DISCORD_SERVER_STATE_FILENAME', 'discord_server_state.json')
         )
 
         self._mcserver = MCServerConfig(

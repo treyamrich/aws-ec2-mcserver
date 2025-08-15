@@ -1,4 +1,3 @@
-from time import time
 import discord
 import os
 from discord.ext import tasks, commands
@@ -17,23 +16,24 @@ class MainCog(commands.Cog):
     
     server = SlashCommandGroup("server", "Commands related to the Minecraft server")
     
-    def __init__(self, bot):
+    def __init__(self, bot: discord.Bot):
         self.bot = bot
         self.handler = get_handler(bot)
+        
+        self.update_server_status_loop.start()
 
     @server.command(description="Starts the Minecraft server")
     async def start(self, ctx: discord.ApplicationContext):
         await ctx.respond(f"Processing request :robot:")
         await self.handler.start(ctx)
-        self.update_server_status.start()
         
     @tasks.loop(seconds=15)
-    async def update_server_state(self):
-        log_vars = {"method": "update_server_state"}
-        
+    async def update_server_status_loop(self):
+        log_vars = {"method": "update_server_status_loop"}
+
         try:
             current_connected_players = state_manager.get_connected_players()
-            self.handler.update_server_state()
+            state_manager.update_server_run_state()
                 
             if not state_manager.is_server_running():
                 logger.info("Server not running, waiting for it to start.", extra=log_vars)
@@ -44,11 +44,13 @@ class MainCog(commands.Cog):
                 return
             
             # If the status message even exists from starting the server
-            status_message = state_manager.get_server_status_message()
-            if status_message:
+            channel_id, msg_id = state_manager.get_server_status_channel_and_msg_id()
+            if msg_id and channel_id:
+                channel = self.bot.get_channel(channel_id)
                 embed = discord_embed.server_status()
-                await status_message.edit(embed=embed)
-                logger.info("Updated server status embed with new connected players.", extra=log_vars)
+                message = await channel.fetch_message(msg_id)
+                await message.edit(embed=embed)
+                logger.debug("Updated server status embed with new connected players.", extra=log_vars)
         except Exception as e:
             logger.error(f"Error updating server state: {e}", extra=log_vars)
 
@@ -67,6 +69,11 @@ class MainCog(commands.Cog):
     @bot.event
     async def on_ready():
         logger.info(f"{bot.user.name} has connected to Discord!")
+        
+        # If server was running before bot started
+        state_manager.update_server_run_state()
+        if state_manager.is_server_running():
+            state_manager.load_from_file()
 
 try:
     bot.add_cog(MainCog(bot))

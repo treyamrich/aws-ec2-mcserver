@@ -2,11 +2,13 @@ import discord
 import os
 import subprocess
 from abc import ABC, abstractmethod
+import discord_embed as embed
+
 from core.config import config, Deployment
 from core.logger import Logger
 from core.state import RunState, state_manager
-import discord_embed as embed
-from discordbot.bot.src.core import docker
+from core import docker_util
+
 
 if config.GENERAL.deployment == Deployment.AWS_EC2:
     from core import ec2
@@ -45,22 +47,21 @@ class DiscordCmdHandler(ABC):
     @abstractmethod
     async def ip(self, ctx: discord.ApplicationContext):
         """Get the server's public IP address."""
-        pass
-            
-    @abstractmethod
-    def update_server_state(self):
-        """Update the server state."""
-        pass        
+        pass  
     
     async def ping(self, ctx):
         """Get the server's ping."""
         await ctx.respond(f"Pong! Latency is {int(self.bot.latency * 1000)} ms")
         
-    async def _poll_and_send_server_start(self, ctx: discord.ApplicationContext):
+    async def _finalize_server_start(self, ctx: discord.ApplicationContext):
         state_manager.set_server_run_state(RunState.STARTING)
         bot_response = await ctx.respond(embed=embed.server_status())
-        original_msg = await bot_response.original_message()
-        state_manager.set_server_status_message(original_msg)
+        original_response = await bot_response.original_response()
+        state_manager.set_server_status_channel_and_msg_id(
+            channel_id=ctx.channel_id,
+            msg_id=original_response.id
+        )
+        state_manager.save_to_file()
             
     
     
@@ -87,7 +88,7 @@ class AwsEc2Handler(DiscordCmdHandler):
         state_manager.reset()
         state_manager.set_discord_guild_name(ctx.guild.name)
         state_manager.set_ec2_instance(instance)
-        await self._poll_and_send_server_start(ctx)
+        await self._finalize_server_start(ctx)
 
     async def ip(self, ctx: discord.ApplicationContext):
         """Get the server's public IP address."""
@@ -97,23 +98,12 @@ class AwsEc2Handler(DiscordCmdHandler):
             await ctx.respond(f"The server's public IP address is: {instance_ip}")
         except Exception as e:
             await _exception_helper(e, ctx)
-            
-    def update_server_state(self):
-        """Update the server state."""
-        instance = ec2.getServerInstance()
-        if instance:
-            state_manager.set_server_run_state(RunState.RUNNING)
-            state_manager.set_connected_players(instance.getConnectedPlayers())
-        else:
-            state_manager.set_server_run_state(RunState.STOPPED)
-            state_manager.set_connected_players(set())
-            
 
 class LocalHandler(DiscordCmdHandler):
 
     async def start(self, ctx: discord.ApplicationContext):
         """Start the Minecraft server locally."""
-        if docker.is_container_running(config.GENERAL.docker_compose_slug):
+        if docker_util.is_container_running(config.GENERAL.docker_compose_slug):
             self.logger.info(f"Server is already running locally with slug {config.GENERAL.docker_compose_slug}", extra={'method': 'start'})
             await ctx.respond(f"The server is already running :yawning_face:")
             return
@@ -141,13 +131,8 @@ class LocalHandler(DiscordCmdHandler):
             return
         
         state_manager.set_discord_guild_name(ctx.guild.name)
-        await self._poll_and_send_server_start(ctx)
+        await self._finalize_server_start(ctx)
     
     async def ip(self, ctx: discord.ApplicationContext):
         """Get the server's public IP address locally."""
         await ctx.respond(f"Server is hosted locally. IP Address not available.")
-        
-    def update_server_state(self):
-        """Update the server state for local deployment."""
-        container_status = docker.container_status(config.GENERAL.docker_compose_slug)
-        state_manager.set_server_run_state(container_status.status)
