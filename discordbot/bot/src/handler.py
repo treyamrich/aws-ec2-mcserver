@@ -37,7 +37,7 @@ class DiscordCmdHandler(ABC):
     
     def __init__(self, bot: discord.Bot):
         self.bot = bot
-        self.logger = Logger('DiscordCmdHandler', severity_level='debug')
+        self.logger = Logger('DiscordCmdHandler')
 
     @abstractmethod
     async def start(self, ctx: discord.ApplicationContext):
