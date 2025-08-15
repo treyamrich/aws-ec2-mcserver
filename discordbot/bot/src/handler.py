@@ -56,11 +56,16 @@ class DiscordCmdHandler(ABC):
     async def _finalize_server_start(self, ctx: discord.ApplicationContext):
         state_manager.set_discord_guild_name(ctx.guild.name)
         state_manager.set_server_state_running()
-        bot_response = await ctx.respond(embed=embed.server_status())
-        original_response = await bot_response.original_response()
+        resp = await ctx.respond(embed=embed.server_status())
+        msg_id = None
+        if isinstance(resp, discord.Interaction):
+            original_response = await resp.original_response()
+            msg_id = original_response.id
+        else:
+            msg_id = resp.id
         state_manager.set_server_status_channel_and_msg_id(
             channel_id=ctx.channel_id,
-            msg_id=original_response.id
+            msg_id=msg_id
         )
         state_manager.save_to_file()
             
