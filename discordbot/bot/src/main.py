@@ -38,7 +38,7 @@ class MainCog(commands.Cog):
             new_run_state = state_manager.get_server_run_state()
                 
             if not state_manager.is_server_running():
-                logger.info("Server not running, waiting for it to start.", extra=log_vars)
+                logger.debug("Server not running, waiting for it to start.", extra=log_vars)
                 return
             
             current_connected_players = state_manager.get_connected_players()
