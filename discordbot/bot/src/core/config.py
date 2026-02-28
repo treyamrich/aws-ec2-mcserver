@@ -48,6 +48,7 @@ class KubernetesConfig:
     mc_image: str
     mc_configmap_name: str
     mc_pvc_name: str
+    mc_pvc_volume_name: str
 
 @dataclass
 class GeneralConfig:
@@ -96,6 +97,7 @@ class Config:
             mc_image=os.getenv('KUBERNETES_MC_IMAGE', 'itzg/minecraft-server:java21'),
             mc_configmap_name=os.getenv('KUBERNETES_MC_CONFIGMAP', 'mc-server-config'),
             mc_pvc_name=os.getenv('KUBERNETES_MC_PVC', 'mc-server-data'),
+            mc_pvc_volume_name=os.getenv('KUBERNETES_MC_PVC_VOLUME_NAME'),
         )
         
     @property

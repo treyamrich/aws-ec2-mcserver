@@ -79,7 +79,7 @@ def create_mc_server_pod(k8s_config: KubernetesConfig) -> bool:
             name=k8s_config.mc_pod_name,
             namespace=k8s_config.namespace,
             labels={"app": "mc-server"},
-            annotations={"backup.velero.io/backup-volumes": "world-data"},
+            annotations={"backup.velero.io/backup-volumes": k8s_config.mc_pvc_volume_name},
         ),
         spec=client.V1PodSpec(
             restart_policy="Never",
@@ -100,7 +100,7 @@ def create_mc_server_pod(k8s_config: KubernetesConfig) -> bool:
                     ],
                     volume_mounts=[
                         client.V1VolumeMount(
-                            name="world-data",
+                            name=k8s_config.mc_pvc_volume_name,
                             mount_path="/data",
                         )
                     ],
@@ -108,7 +108,7 @@ def create_mc_server_pod(k8s_config: KubernetesConfig) -> bool:
             ],
             volumes=[
                 client.V1Volume(
-                    name="world-data",
+                    name=k8s_config.mc_pvc_volume_name,
                     persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
                         claim_name=k8s_config.mc_pvc_name
                     ),
