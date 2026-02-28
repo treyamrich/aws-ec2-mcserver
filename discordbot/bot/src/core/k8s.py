@@ -5,6 +5,7 @@ from typing import Optional
 from kubernetes import client, config as kube_config
 from kubernetes.client.rest import ApiException
 
+from core.config import KubernetesConfig
 from core.logger import Logger
 from core.state import RunState
 
@@ -71,7 +72,7 @@ def is_pod_running(pod_name: str, namespace: str) -> bool:
     return status is not None and status.status == RunState.RUNNING
 
 
-def create_mc_server_pod(k8s_config) -> bool:
+def create_mc_server_pod(k8s_config: KubernetesConfig) -> bool:
     """Create a Minecraft server pod using the provided KubernetesConfig."""
     pod = client.V1Pod(
         metadata=client.V1ObjectMeta(
