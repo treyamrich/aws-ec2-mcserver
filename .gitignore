@@ -10,3 +10,4 @@ server/minecraft/
 **/venv
 **/.venv
 compose-prod.yaml
+docs/plans

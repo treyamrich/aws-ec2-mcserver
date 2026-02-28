@@ -6,12 +6,16 @@ import discord_embed as embed
 
 from core.config import config, Deployment
 from core.logger import Logger
-from core.state import state_manager
-from core import docker_util
+from core.state import state_manager, RunState
 
+if config.GENERAL.deployment == Deployment.LOCAL:
+    from core import docker_util
 
 if config.GENERAL.deployment == Deployment.AWS_EC2:
     from core import ec2
+
+if config.GENERAL.deployment == Deployment.KUBERNETES:
+    from core import k8s
 
 logger = Logger(os.path.basename(__file__))
 
@@ -21,6 +25,8 @@ def get_handler(bot) -> 'DiscordCmdHandler':
         return LocalHandler(bot)
     elif config.GENERAL.deployment == Deployment.AWS_EC2:
         return AwsEc2Handler(bot)
+    elif config.GENERAL.deployment == Deployment.KUBERNETES:
+        return KubernetesHandler(bot)
     logger.critical("Could not create handler. Handler not implemented for deployment.", extra={
         "deployment": config.GENERAL.deployment.value,
         "method": "get_handler"
@@ -47,8 +53,12 @@ class DiscordCmdHandler(ABC):
     @abstractmethod
     async def ip(self, ctx: discord.ApplicationContext):
         """Get the server's public IP address."""
-        pass  
-    
+        pass
+
+    async def status(self, ctx):
+        """Get the server's status."""
+        await ctx.respond(embed=embed.server_status())
+
     async def ping(self, ctx):
         """Get the server's ping."""
         await ctx.respond(f"Pong! Latency is {int(self.bot.latency * 1000)} ms")
@@ -140,3 +150,41 @@ class LocalHandler(DiscordCmdHandler):
     async def ip(self, ctx: discord.ApplicationContext):
         """Get the server's public IP address locally."""
         await ctx.respond(f"Server is hosted locally. IP Address not available.")
+
+class KubernetesHandler(DiscordCmdHandler):
+
+    async def start(self, ctx: discord.ApplicationContext):
+        """Start the Minecraft server on Kubernetes."""
+        k8s_config = config.KUBERNETES
+        try:
+            status = k8s.pod_status(k8s_config.mc_pod_name, k8s_config.namespace)
+
+            if status is None:
+                # Pod doesn't exist — create it
+                state_manager.reset()
+                if not k8s.create_mc_server_pod(k8s_config):
+                    await ctx.respond("Failed to start the server :cry:")
+                    return
+                await self._finalize_server_start(ctx)
+
+            elif status.status == RunState.STARTING:
+                await ctx.respond("Server is already starting, please wait.")
+
+            elif status.status == RunState.RUNNING:
+                await ctx.respond("The server is already running :yawning_face:")
+
+            elif status.status in (RunState.EXITED, RunState.DEAD, RunState.UNKNOWN):
+                # Clean up old pod and start fresh
+                k8s.delete_mc_server_pod(k8s_config.mc_pod_name, k8s_config.namespace)
+                state_manager.reset()
+                if not k8s.create_mc_server_pod(k8s_config):
+                    await ctx.respond("Failed to start the server :cry:")
+                    return
+                await self._finalize_server_start(ctx)
+
+        except Exception as e:
+            await _exception_helper(logger, e, ctx)
+
+    async def ip(self, ctx: discord.ApplicationContext):
+        """Get the server's address on Kubernetes."""
+        await ctx.respond("Server is hosted on Kubernetes. Use the server address to connect.")

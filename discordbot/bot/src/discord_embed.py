@@ -3,7 +3,6 @@ import discord
 from core.config import Deployment, config
 from core.logger import Logger
 from core.state import state_manager
-from core import ec2
 from core.mcserver_status import mcserver
 
 logger = Logger(os.path.basename(__file__))
@@ -53,11 +52,16 @@ def _set_server_deployment_footer(embed: discord.Embed):
             text=f"Server hosted locally"
         )
     elif config.GENERAL.deployment == Deployment.AWS_EC2:
+        from core import ec2
         instance = ec2.getServerInstance()
         instance_type = instance.instanceType if instance else "Unknown"
-        ip = instance.public_ip if instance else "Unknown"
+        ip = instance.publicIp if instance else "Unknown"
         embed.set_footer(
             text=f"Server hosted on AWS Spot EC2. Instance Type: {instance_type}. IP: {ip}."
+        )
+    elif config.GENERAL.deployment == Deployment.KUBERNETES:
+        embed.set_footer(
+            text="Server hosted on Kubernetes"
         )
     else:
         embed.set_footer(

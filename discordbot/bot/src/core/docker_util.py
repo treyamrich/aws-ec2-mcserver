@@ -7,7 +7,14 @@ from core.logger import Logger
 from core.state import RunState
 
 logger = Logger(os.path.basename(__file__))
-client = docker.from_env()
+
+_client = None
+
+def _get_client():
+    global _client
+    if _client is None:
+        _client = docker.from_env()
+    return _client
 
 class ContainerStatus:
     def __init__(self, status: RunState, extra: Optional[dict] = None):
@@ -41,7 +48,7 @@ class ContainerStatus:
 
 def container_status(container_name: str) -> ContainerStatus:
     try:
-        container = client.containers.get(container_name)
+        container = _get_client().containers.get(container_name)
         return ContainerStatus.from_string(container.status)
     except Exception as e:
         # Handle errors as needed

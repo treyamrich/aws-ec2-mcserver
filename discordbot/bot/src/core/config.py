@@ -6,6 +6,7 @@ from typing import Optional
 class Deployment(Enum):
     LOCAL = "local"
     AWS_EC2 = "aws_ec2"
+    KUBERNETES = "kubernetes"
 
 class ServerType(Enum):
     JAVA = "java"
@@ -40,6 +41,14 @@ class AWSConfig:
     region: str
     launch_template_name: str
     
+@dataclass
+class KubernetesConfig:
+    namespace: str
+    mc_pod_name: str
+    mc_image: str
+    mc_configmap_name: str
+    mc_pvc_name: str
+
 @dataclass
 class GeneralConfig:
     deployment: Deployment
@@ -80,6 +89,14 @@ class Config:
             region=os.getenv('AWS_REGION'),
             launch_template_name=os.getenv('AWS_LAUNCH_TEMPLATE_NAME')
         )
+
+        self._kubernetes = KubernetesConfig(
+            namespace=os.getenv('KUBERNETES_NAMESPACE', 'default'),
+            mc_pod_name=os.getenv('KUBERNETES_MC_POD_NAME', 'mc-server'),
+            mc_image=os.getenv('KUBERNETES_MC_IMAGE', 'itzg/minecraft-server:java21'),
+            mc_configmap_name=os.getenv('KUBERNETES_MC_CONFIGMAP', 'mc-server-config'),
+            mc_pvc_name=os.getenv('KUBERNETES_MC_PVC', 'mc-server-data'),
+        )
         
     @property
     def GENERAL(self):
@@ -96,5 +113,9 @@ class Config:
     @property
     def AWS(self):
         return self._aws
+
+    @property
+    def KUBERNETES(self):
+        return self._kubernetes
 
 config = Config()
