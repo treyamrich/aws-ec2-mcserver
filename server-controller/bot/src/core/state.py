@@ -6,8 +6,6 @@ from typing import Optional
 
 from core.config import config
 from core.logger import Logger
-from core import ec2
-from core.mcserver_status import mcserver
     
 logger = Logger('StateManager')
 
@@ -71,6 +69,7 @@ class StateManager:
             self.server_state.run_state = RunState.RUNNING
             
     def update_server_run_state(self):
+        from core.mcserver_status import mcserver
         is_remote_running = mcserver.is_server_running()
         with self._lock:
             # This is a mini FSM

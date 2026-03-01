@@ -16,12 +16,6 @@ os.environ.setdefault("SERVER_ADDRESS", "test-server")
 os.environ.setdefault("SERVER_STATUS_HOST", "test-server")
 os.environ.setdefault("SERVER_TYPE", "java")
 os.environ.setdefault("SERVER_PORT_JAVA", "25565")
-os.environ.setdefault("KUBERNETES_NAMESPACE", "test-ns")
-os.environ.setdefault("KUBERNETES_MC_POD_NAME", "mc-server")
-os.environ.setdefault("KUBERNETES_MC_IMAGE", "itzg/minecraft-server:java21")
-os.environ.setdefault("KUBERNETES_MC_CONFIGMAP", "mc-server-config")
-os.environ.setdefault("KUBERNETES_MC_PVC", "mc-server-data")
-os.environ.setdefault("KUBERNETES_MC_PVC_VOLUME_NAME", "world-data")
 os.environ.setdefault("LOG_LEVEL", "critical")
 
 # --- Add src to path ---
@@ -29,7 +23,7 @@ src_path = os.path.join(os.path.dirname(__file__), "..", "bot", "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
-# --- Pre-mock kubernetes config (runs at import time in k8s.py) ---
+# --- Pre-mock kubernetes config (runs at import time in k8s/client.py) ---
 import kubernetes.config as _kube_config
 
 _kube_config.load_incluster_config = MagicMock(
@@ -40,19 +34,43 @@ _kube_config.load_kube_config = MagicMock()
 # --- Fixtures ---
 import pytest
 
+from k8s import PodTemplate
+
+
+SAMPLE_POD_TEMPLATE = {
+    "metadata": {
+        "name": "mc-server",
+        "namespace": "test-ns",
+        "labels": {"app": "mc-server"},
+        "annotations": {"backup.velero.io/backup-volumes": "world-data"},
+    },
+    "spec": {
+        "restartPolicy": "Never",
+        "containers": [
+            {
+                "name": "mc-server",
+                "image": "itzg/minecraft-server:java21",
+                "ports": [
+                    {"containerPort": 25565, "hostPort": 25565, "protocol": "TCP"},
+                    {"containerPort": 25565, "hostPort": 25565, "protocol": "UDP"},
+                ],
+                "envFrom": [{"configMapRef": {"name": "mc-server-config"}}],
+                "volumeMounts": [{"name": "world-data", "mountPath": "/data"}],
+            }
+        ],
+        "volumes": [
+            {
+                "name": "world-data",
+                "persistentVolumeClaim": {"claimName": "mc-server-data"},
+            }
+        ],
+    },
+}
+
 
 @pytest.fixture
-def k8s_config():
-    from core.config import KubernetesConfig
-
-    return KubernetesConfig(
-        namespace="test-ns",
-        mc_pod_name="mc-server",
-        mc_image="itzg/minecraft-server:java21",
-        mc_configmap_name="mc-server-config",
-        mc_pvc_name="mc-server-data",
-        mc_pvc_volume_name="world-data",
-    )
+def pod_template():
+    return PodTemplate(SAMPLE_POD_TEMPLATE)
 
 
 @pytest.fixture

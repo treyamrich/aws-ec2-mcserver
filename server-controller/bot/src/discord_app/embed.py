@@ -14,7 +14,7 @@ def server_status() -> discord.Embed:
     embed.add_field(
         name="Server Address", value=config.MINECRAFT.server_address, inline=False
     )
-    
+
     if config.MINECRAFT.server_map_port:
         embed.add_field(
             name="Server Map",
@@ -23,11 +23,11 @@ def server_status() -> discord.Embed:
 
     if config.MINECRAFT.thumbnail_url:
         embed.set_thumbnail(url=config.MINECRAFT.thumbnail_url)
-    
+
     _set_server_status(embed)
     _set_server_deployment_footer(embed)
     return embed
-    
+
 def _set_server_status(embed: discord.Embed):
     status = state_manager.get_server_run_state()
     embed.add_field(

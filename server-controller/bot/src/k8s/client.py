@@ -1,11 +1,11 @@
 
+import json
 import os
 from typing import Optional
 
 from kubernetes import client, config as kube_config
 from kubernetes.client.rest import ApiException
 
-from core.config import KubernetesConfig
 from core.logger import Logger
 from core.state import RunState
 
@@ -27,6 +27,23 @@ def _load_kube_config():
 
 _load_kube_config()
 v1_api = client.CoreV1Api()
+
+
+class PodTemplate:
+    """Loaded pod template with extracted metadata for lifecycle management."""
+
+    def __init__(self, template: dict):
+        self.template = template
+        metadata = template.get("metadata", {})
+        self.pod_name = metadata.get("name")
+        self.namespace = metadata.get("namespace", "default")
+
+    @staticmethod
+    def from_file(path: str) -> 'PodTemplate':
+        with open(path) as f:
+            template = json.load(f)
+        logger.info(f"Loaded pod template from '{path}'.")
+        return PodTemplate(template)
 
 
 class PodStatus:
@@ -72,75 +89,34 @@ def is_pod_running(pod_name: str, namespace: str) -> bool:
     return status is not None and status.status == RunState.RUNNING
 
 
-def create_mc_server_pod(k8s_config: KubernetesConfig) -> bool:
-    """Create a Minecraft server pod using the provided KubernetesConfig."""
-    pod = client.V1Pod(
-        metadata=client.V1ObjectMeta(
-            name=k8s_config.mc_pod_name,
-            namespace=k8s_config.namespace,
-            labels={"app": "mc-server"},
-            annotations={"backup.velero.io/backup-volumes": k8s_config.mc_pvc_volume_name},
-        ),
-        spec=client.V1PodSpec(
-            restart_policy="Never",
-            containers=[
-                client.V1Container(
-                    name="mc-server",
-                    image=k8s_config.mc_image,
-                    ports=[
-                        client.V1ContainerPort(container_port=25565, protocol="TCP"),
-                        client.V1ContainerPort(container_port=25565, protocol="UDP"),
-                    ],
-                    env_from=[
-                        client.V1EnvFromSource(
-                            config_map_ref=client.V1ConfigMapEnvSource(
-                                name=k8s_config.mc_configmap_name
-                            )
-                        )
-                    ],
-                    volume_mounts=[
-                        client.V1VolumeMount(
-                            name=k8s_config.mc_pvc_volume_name,
-                            mount_path="/data",
-                        )
-                    ],
-                )
-            ],
-            volumes=[
-                client.V1Volume(
-                    name=k8s_config.mc_pvc_volume_name,
-                    persistent_volume_claim=client.V1PersistentVolumeClaimVolumeSource(
-                        claim_name=k8s_config.mc_pvc_name
-                    ),
-                )
-            ],
-        ),
-    )
-
+def create_pod(pod_template: PodTemplate) -> bool:
+    """Create a pod from a PodTemplate."""
     try:
-        v1_api.create_namespaced_pod(namespace=k8s_config.namespace, body=pod)
-        logger.info(f"Created MC server pod '{k8s_config.mc_pod_name}' in namespace '{k8s_config.namespace}'.")
+        v1_api.create_namespaced_pod(
+            namespace=pod_template.namespace, body=pod_template.template
+        )
+        logger.info(f"Created pod '{pod_template.pod_name}' in namespace '{pod_template.namespace}'.")
         return True
     except ApiException as e:
-        logger.error(f"Error creating MC server pod: {e}")
+        logger.error(f"Error creating pod: {e}")
         return False
     except Exception as e:
-        logger.error(f"Error creating MC server pod: {e}")
+        logger.error(f"Error creating pod: {e}")
         return False
 
 
-def delete_mc_server_pod(pod_name: str, namespace: str) -> bool:
-    """Delete the Minecraft server pod."""
+def delete_pod(pod_name: str, namespace: str) -> bool:
+    """Delete a pod by name."""
     try:
         v1_api.delete_namespaced_pod(name=pod_name, namespace=namespace)
-        logger.info(f"Deleted MC server pod '{pod_name}' in namespace '{namespace}'.")
+        logger.info(f"Deleted pod '{pod_name}' in namespace '{namespace}'.")
         return True
     except ApiException as e:
         if e.status == 404:
             logger.info(f"Pod '{pod_name}' not found in namespace '{namespace}', nothing to delete.")
             return True
-        logger.error(f"Error deleting MC server pod: {e}")
+        logger.error(f"Error deleting pod: {e}")
         return False
     except Exception as e:
-        logger.error(f"Error deleting MC server pod: {e}")
+        logger.error(f"Error deleting pod: {e}")
         return False
