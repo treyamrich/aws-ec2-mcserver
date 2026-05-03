@@ -1,5 +1,5 @@
 py-cord
 boto3
-mcstatus
+mcstatus==13.1.0
 docker
 kubernetes

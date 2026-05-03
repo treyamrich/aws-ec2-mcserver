@@ -24,7 +24,7 @@ class MinecraftServer:
 
     def list_players(self) -> Optional[Set[str]]:
         def _get_player_names() -> Set[str]:
-            players = self._server.query().players.names
+            players = self._server.query().players.list
             return set(players)
         return self._rescue("list_players", _get_player_names, None)
     
