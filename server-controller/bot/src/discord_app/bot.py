@@ -63,6 +63,14 @@ class MainCog(commands.Cog):
         except Exception as e:
             logger.error(f"Error updating server state: {e}", extra=log_vars)
 
+    @update_server_status_loop.before_loop
+    async def before_update_server_status_loop(self):
+        # Wait for on_ready to complete (load_from_file sets msg_id) before
+        # ticking. Otherwise the first tick runs with msg_id=None, populates
+        # connected_players from the live query, and the no-change guard
+        # then suppresses every subsequent edit.
+        await self.bot.wait_until_ready()
+
     @server.command(description="Lists number of players and ping.")
     async def status(self, ctx: discord.ApplicationContext):
         await self.handler.status(ctx)
