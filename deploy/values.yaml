@@ -1,0 +1,161 @@
+namespace: minecraft
+
+app-template:
+  namespace: minecraft
+  createNamespace: false
+
+  apps:
+    mc-server-controller-discord:
+      resources:
+        requests: { cpu: 50m, memory: 128Mi }
+        limits: { cpu: 50m, memory: 128Mi }
+      image:
+        repository: localhost:5000/mc-server-controller-k8s-discord
+        tag: v1.0.2
+        pullPolicy: IfNotPresent
+      env:
+        DEPLOYMENT: "kubernetes"
+        LOG_LEVEL: "info"
+        KUBERNETES_POD_TEMPLATE_PATH: "/config/pod-template.json"
+        SERVER_ADDRESS: "mc-server.minecraft.svc"
+        SERVER_STATUS_HOST: "mc-server.minecraft.svc"
+        SERVER_TYPE: "java"
+        SERVER_PORT_JAVA: "25565"
+        DISCORD_DEBUG_GUILD_IDS: ""
+        DISCORD_SERVER_STATE_FILENAME: "/data/discord_server_state.json"
+      extraEnv:
+        - name: DISCORD_API_TOKEN_FILE
+          value: /vault/secrets/discord-token
+      serviceAccountName: mc-server-controller
+      pvcs:
+        state:
+          size: 100Mi
+          mountPath: /data
+          backup: true
+          prune: false
+      configMapVolumes:
+        pod-template:
+          configMapName: mc-server-pod-template
+          mountPath: /config
+          readOnly: true
+      vault:
+        role: "mc-server-controller"
+        secrets:
+          - name: discord-token
+            path: "secret/data/apps/minecraft/mc-server-controller"
+            key: discord-api-token
+
+    mc-server-controller-http:
+      resources:
+        requests: { cpu: 50m, memory: 128Mi }
+        limits: { cpu: 50m, memory: 128Mi }
+      image:
+        repository: localhost:5000/mc-server-controller-k8s-http
+        tag: v1.0.0
+        pullPolicy: IfNotPresent
+      env:
+        DEPLOYMENT: "kubernetes"
+        LOG_LEVEL: "info"
+        KUBERNETES_POD_TEMPLATE_PATH: "/config/pod-template.json"
+        SERVER_ADDRESS: "mc-server.minecraft.svc"
+        SERVER_STATUS_HOST: "mc-server.minecraft.svc"
+        SERVER_TYPE: "java"
+        SERVER_PORT_JAVA: "25565"
+      extraEnv:
+        - name: HTTP_API_TOKEN_FILE
+          value: /vault/secrets/http-api-token
+      serviceAccountName: mc-server-controller
+      ports:
+        http:
+          port: 8080
+      configMapVolumes:
+        pod-template:
+          configMapName: mc-server-pod-template
+          mountPath: /config
+          readOnly: true
+      vault:
+        role: "mc-server-controller"
+        secrets:
+          - name: http-api-token
+            path: "secret/data/apps/minecraft/mc-server-controller"
+            key: http-api-token
+
+ingress:
+  ingressClassName: platform-traefik
+  tls:
+    enabled: true
+    clusterIssuer: homelab-ca-issuer
+    secretNamePrefix: tls-
+  domains:
+    lan: ".lan.local"
+    tailscale: ".ts.lan.local"
+  services:
+    - name: mc-server-controller-http
+      subdomain: mc-api
+      path: /
+      port: 8080
+
+mcServer:
+  podTemplate:
+    metadata:
+      name: mc-server
+      labels:
+        app: mc-server
+      annotations: {}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: mc-server
+        image: itzg/minecraft-server:java25
+        resources:
+          requests:
+            cpu: 500m
+            memory: 4Gi
+          limits:
+            memory: 8Gi
+        ports:
+        # No hostPort — exposure is via the mc-server LoadBalancer Service
+        # (klipper-lb svclb DaemonSet binds host:25565 on every node).
+        # hostPort would conflict with the svclb pod's bind on the same port.
+        - containerPort: 25565
+          protocol: TCP
+        - containerPort: 25565
+          protocol: UDP
+        envFrom:
+        - configMapRef:
+            name: mc-server-config
+        volumeMounts:
+        - name: world-data
+          mountPath: /data
+      volumes:
+      - name: world-data
+        persistentVolumeClaim:
+          claimName: mc-server-data
+
+  configMap:
+    name: mc-server-config
+    data:
+      EULA: "TRUE"
+      TYPE: "VANILLA"
+      VERSION: "latest"
+      SEED: "1993111253419983964"
+      MEMORY: "4096M"
+      MOTD: "Kevin's Fan Boiz"
+      OPS: "mochipounder"
+      DIFFICULTY: "3"
+      ENABLE_COMMAND_BLOCK: "true"
+      ENABLE_QUERY: "true"
+      LEVEL: "world-vanilla"
+      PLAYER_IDLE_TIMEOUT: "120"
+      LOG_TIMESTAMP: "true"
+      ENABLE_AUTOSTOP: "TRUE"
+      VIEW_DISTANCE: "20"
+      AUTOSTOP_TIMEOUT_INIT: "900"
+      AUTOSTOP_TIMEOUT_EST: "3600"
+      USE_AIKAR_FLAGS: "true"
+  pvc:
+    name: mc-server-data
+    size: 10Gi
+  service:
+    name: mc-server
+    port: 25565

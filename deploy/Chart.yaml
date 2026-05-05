@@ -1,0 +1,13 @@
+apiVersion: v2
+name: mc-server-controller
+description: Minecraft server controller with Discord bot and HTTP API
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: app-template
+    version: "0.1.0"
+    repository: "file://../../_components/app-template"
+  - name: ingress
+    version: "0.1.0"
+    repository: "file://../../_components/ingress"

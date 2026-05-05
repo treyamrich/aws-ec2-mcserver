@@ -1,0 +1,28 @@
+# App-owned KV seeding (Phase 2 encrypted) for mc-server-controller.
+#
+# RBAC stays platform-owned: the chart's SA name is 'mc-server-controller'
+# and the Vault role is bare-named 'mc-server-controller' (per platform
+# files/roles/mc-server-controller.txt) — migrating that would change the
+# role name and require coordinating with whatever in-process Vault auth
+# the controller uses. Just KV migration here.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mc-server-controller-vault-seed-spec
+  namespace: {{ .Values.namespace }}
+  labels:
+    vault.homelab/seed-spec: "true"
+data:
+  spec.json: |
+    {
+      "path": "secret/apps/minecraft/mc-server-controller",
+      "keys": {
+        "discord-api-token": {
+          "encrypted": "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBqUkFBTXUzRWtRc1l1NXRRQ3c4dlVRL1ZsRGJBaTFQa2syQWJTYVh0Umw4CkpUV1VpN3FNcXBJdERtVjFaVlU5MUh2MitWYmRCdi9JSktBeGFGb2VPaVkKLS0tIHA3UFFVMkU2QXdjQThhZHdONHgvVHFqYWtneXdtUzJzMGRoTkI4ODZkd2MKSDGt1RpUloYKcm/m7+qDjJeC7d+50DwvfUUqEUkcQ9NPI2ryp6QZiO15l3vSCR6NhQS6W7PZyM87kIxjL+OMKJiT1Gn+dIrsr2OCXjsWuwp9slm5gD2gK/4irUYxDwVrv0HMjGdleMw="
+        },
+        "http-api-token": {
+          "encrypted": "YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBzNzQrQzVsTGFvc1M0U1hmMGJvZGl2RjRWMWkwcjJhdHJmL0tSZkNqdFRzClhWeXdhd3JUWVdHZStqUUhGK2ZlUWtJNXhOSUdhUVF3dnlWL2Evb2JKeHcKLS0tIHBxODJVWnFGeTBoQWp1UzFRQjVuSUFwenBYc2N6U05QcnhFc213VDF0RTAKlJShIenk9n7K0jjghGVTLgzmHh/r85mzumLkqo4xjSMqFEPJZ7JQeYskYUkBs1TRnaslRlbL"
+        }
+      }
+    }

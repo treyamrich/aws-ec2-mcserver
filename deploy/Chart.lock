@@ -1,0 +1,9 @@
+dependencies:
+- name: app-template
+  repository: file://../../_components/app-template
+  version: 0.1.0
+- name: ingress
+  repository: file://../../_components/ingress
+  version: 0.1.0
+digest: sha256:c9942c068c0c0651a5abac5e72d5110dd47c4bf0c55fdb99f07ac3a0a4237d83
+generated: "2026-03-01T07:10:01.415253915Z"

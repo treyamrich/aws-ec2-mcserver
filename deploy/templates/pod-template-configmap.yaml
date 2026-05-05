@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mc-server-pod-template
+  namespace: {{ .Values.namespace }}
+data:
+  {{- $tpl := deepCopy .Values.mcServer.podTemplate }}
+  {{- $_ := set $tpl.metadata "namespace" .Values.namespace }}
+  pod-template.json: {{ $tpl | toJson | quote }}

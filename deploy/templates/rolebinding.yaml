@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mc-server-controller-pod-manager-binding
+  namespace: {{ .Values.namespace }}
+subjects:
+- kind: ServiceAccount
+  name: mc-server-controller
+  namespace: {{ .Values.namespace }}
+roleRef:
+  kind: Role
+  name: mc-server-controller-pod-manager
+  apiGroup: rbac.authorization.k8s.io
