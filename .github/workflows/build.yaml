@@ -15,10 +15,11 @@ on:
 
 jobs:
   build:
-    # No per-repo ARC scale set yet for aws-ec2-mcserver — use the
-    # shared default scale set (runnerScaleSetName: in-cluster, defined
-    # in argoapps-homelab/_charts/platform/arc-runners-default).
-    runs-on: in-cluster
+    # Per-repo ARC scale set defined in
+    # argoapps-homelab/_charts/platform/arc-runners-aws-ec2-mcserver.
+    # ARC v2 only dispatches jobs from the bound repo, so this needs
+    # to match runnerScaleSetName for that scale set.
+    runs-on: aws-ec2-mcserver
     permissions:
       contents: read
     env:
