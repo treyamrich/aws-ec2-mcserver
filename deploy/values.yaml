@@ -4,6 +4,23 @@ app-template:
   namespace: minecraft
   createNamespace: false
 
+  ingress:
+    enabled: true
+    ingressClassName: platform-traefik
+    annotations:
+      cert-manager.io/cluster-issuer: homelab-ca-issuer
+    tls:
+      enabled: true
+      secretNamePrefix: tls-
+    domains:
+      lan: ".lan.local"
+      tailscale: ".ts.lan.local"
+    services:
+      - name: mc-server-controller-http
+        subdomain: mc-api
+        path: /
+        port: 8080
+
   apps:
     mc-server-controller-discord:
       resources:
@@ -80,20 +97,6 @@ app-template:
             path: "secret/data/apps/minecraft/mc-server-controller"
             key: http-api-token
 
-ingress:
-  ingressClassName: platform-traefik
-  tls:
-    enabled: true
-    clusterIssuer: homelab-ca-issuer
-    secretNamePrefix: tls-
-  domains:
-    lan: ".lan.local"
-    tailscale: ".ts.lan.local"
-  services:
-    - name: mc-server-controller-http
-      subdomain: mc-api
-      path: /
-      port: 8080
 
 mcServer:
   podTemplate:

@@ -5,9 +5,10 @@ type: application
 version: 0.1.0
 
 dependencies:
+  # Vendored as deploy/charts/app-template-<ver>.tgz (this repo can't
+  # cross-repo file:// the source in argoapps-homelab). To bump:
+  # `helm package /path/to/argoapps-homelab/_charts/_components/app-template/`
+  # → drop the new .tgz into deploy/charts/ + bump the version below.
   - name: app-template
-    version: "0.1.0"
-    repository: "file://../../_components/app-template"
-  - name: ingress
-    version: "0.1.0"
-    repository: "file://../../_components/ingress"
+    version: "0.2.0"
+    repository: "file://./not-resolved-vendored-via-charts-dir"
