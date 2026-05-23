@@ -112,10 +112,10 @@ mcServer:
         image: itzg/minecraft-server:java25
         resources:
           requests:
-            cpu: 500m
-            memory: 4Gi
-          limits:
+            cpu: "6"
             memory: 8Gi
+          limits:
+            memory: 12Gi
         ports:
         # No hostPort — exposure is via the mc-server LoadBalancer Service
         # (klipper-lb svclb DaemonSet binds host:25565 on every node).
@@ -142,7 +142,7 @@ mcServer:
       TYPE: "VANILLA"
       VERSION: "latest"
       SEED: "1993111253419983964"
-      MEMORY: "4096M"
+      MEMORY: "10240M"
       MOTD: "Kevin's Fan Boiz"
       OPS: "mochipounder"
       DIFFICULTY: "3"
