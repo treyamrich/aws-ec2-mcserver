@@ -23,6 +23,16 @@ app-template:
 
   apps:
     mc-server-controller-discord:
+      # Pinned to am4-node1: the controller images
+      # (mc-server-controller-k8s-{discord,http}) only exist in
+      # am4-node1's kubelet image cache from a manual build long ago.
+      # The CI build workflow produces a different image name and pushes
+      # to a different registry (192.168.4.43:5000 = shmillion-pi, which
+      # is currently NotReady), so any reschedule to another node fails
+      # ImagePullBackOff. Pin here until the build pipeline is fixed to
+      # produce the chart's actual image names against localhost:5000.
+      nodeSelector:
+        kubernetes.io/hostname: am4-node1
       resources:
         requests: { cpu: 50m, memory: 128Mi }
         limits: { cpu: 50m, memory: 128Mi }
@@ -63,6 +73,9 @@ app-template:
             key: discord-api-token
 
     mc-server-controller-http:
+      # See nodeSelector comment on mc-server-controller-discord.
+      nodeSelector:
+        kubernetes.io/hostname: am4-node1
       resources:
         requests: { cpu: 50m, memory: 128Mi }
         limits: { cpu: 50m, memory: 128Mi }
