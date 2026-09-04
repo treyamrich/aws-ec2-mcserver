@@ -60,6 +60,10 @@ app-template:
           mountPath: /data
           backup: true
           prune: false
+          # local-static hostPath PV (single-node, post-Longhorn 2026-09).
+          # Set explicitly — the vendored app-template 0.2.0 still
+          # defaults storageClass to "longhorn".
+          storageClass: local-static
       configMapVolumes:
         pod-template:
           configMapName: mc-server-pod-template

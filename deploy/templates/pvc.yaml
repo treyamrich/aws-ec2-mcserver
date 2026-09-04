@@ -6,13 +6,12 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-options: "Prune=false,Delete=false"
     helm.sh/resource-policy: keep
-    velero.io/csi-volumesnapshot-class: "longhorn-snapshot-vsc"
   labels:
     app: mc-server
 spec:
   accessModes:
   - ReadWriteOnce
-  storageClassName: longhorn
+  storageClassName: local-static
   resources:
     requests:
       storage: {{ .Values.mcServer.pvc.size }}
